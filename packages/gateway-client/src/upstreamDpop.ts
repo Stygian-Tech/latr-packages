@@ -80,6 +80,37 @@ async function resolvePdsDpopNonce(
   }
 }
 
+const LATR_SAVED_ITEM_COLLECTION = "com.latr.saved.item";
+
+/**
+ * Ensure the OAuth session has a PDS-bound DPoP nonce before minting upstream proofs.
+ * Runs a lightweight authenticated listRecords call so `@atproto/oauth-client` can
+ * capture `DPoP-Nonce` from the PDS (including use_dpop_nonce retries).
+ */
+export async function primePdsDpopNonce(oauthSession: OAuthSession): Promise<void> {
+  const tokenInfo = await oauthSession.getTokenInfo();
+  const pdsBase = tokenInfo.aud.replace(/\/$/, "");
+  const origin = new URL(`${pdsBase}/`).origin;
+
+  try {
+    const cached = await oauthSession.server.dpopNonces.get(origin);
+    if (cached) return;
+  } catch {
+    // Fall through and prime against the PDS.
+  }
+
+  const params = new URLSearchParams({
+    repo: oauthSession.did,
+    collection: LATR_SAVED_ITEM_COLLECTION,
+    limit: "1",
+  });
+
+  await oauthSession.fetchHandler(
+    `${pdsBase}/xrpc/com.atproto.repo.listRecords?${params}`,
+    { method: "GET" }
+  );
+}
+
 /** Mint a PDS-bound DPoP proof for gateway write-through (`X-ATProto-Upstream-DPoP`). */
 export async function createUpstreamDpopProof(
   oauthSession: OAuthSession,
@@ -87,6 +118,8 @@ export async function createUpstreamDpopProof(
   httpMethod: "GET" | "POST",
   options: UpstreamDpopProofOptions = {}
 ): Promise<string> {
+  await primePdsDpopNonce(oauthSession);
+
   const tokenInfo = await oauthSession.getTokenInfo();
   const pdsBase = tokenInfo.aud.replace(/\/$/, "");
   const htu = stripQueryAndFragment(`${pdsBase}/xrpc/${xrpcMethod}`);
@@ -94,6 +127,10 @@ export async function createUpstreamDpopProof(
   const accessToken = await resolveAccessToken(oauthSession, options.accessToken);
   const ath = await sha256Base64Url(accessToken);
   const nonce = await resolvePdsDpopNonce(oauthSession, pdsBase);
+
+  if (!nonce) {
+    throw new Error("PDS DPoP nonce unavailable after priming; retry save");
+  }
 
   const key = oauthSession.server.dpopKey;
   const jwk = key.bareJwk;
@@ -117,10 +154,8 @@ export async function createUpstreamDpopProof(
     htm: httpMethod,
     htu,
     ath,
+    nonce,
   };
-  if (nonce) {
-    claims.nonce = nonce;
-  }
 
   return key.createJwt({ alg, typ: "dpop+jwt", jwk }, claims);
 }
