@@ -1,24 +1,47 @@
 import { describe, expect, test } from "bun:test";
 
-import { pdsXrpcMethodForGatewayRequest } from "./upstreamDpop";
+import { createUpstreamDpopProof } from "./upstreamDpop";
 
-describe("pdsXrpcMethodForGatewayRequest", () => {
-  test("maps save mutations to repo write XRPC methods", () => {
-    expect(pdsXrpcMethodForGatewayRequest("POST", "/v1/latr/saves")).toEqual({
-      xrpcMethod: "com.atproto.repo.createRecord",
-      httpMethod: "POST",
-    });
-    expect(
-      pdsXrpcMethodForGatewayRequest("PATCH", "/v1/latr/saves/abc/state")
-    ).toEqual({
-      xrpcMethod: "com.atproto.repo.putRecord",
-      httpMethod: "POST",
-    });
-    expect(
-      pdsXrpcMethodForGatewayRequest("DELETE", "/v1/latr/saves/abc")
-    ).toEqual({
-      xrpcMethod: "com.atproto.repo.deleteRecord",
-      httpMethod: "POST",
-    });
+describe("createUpstreamDpopProof", () => {
+  test("includes cached PDS DPoP nonce when available", async () => {
+    let capturedClaims: Record<string, unknown> | undefined;
+
+    const oauthSession = {
+      getTokenInfo: async () => ({
+        aud: "https://pds.example",
+      }),
+      getTokenSet: async () => ({ access_token: "access-token" }),
+      server: {
+        dpopNonces: {
+          get: async () => "server-nonce",
+        },
+        dpopKey: {
+          bareJwk: { kty: "EC", crv: "P-256", x: "x", y: "y" },
+          algorithms: ["ES256"],
+          createJwt: async (
+            _header: Record<string, unknown>,
+            claims: Record<string, unknown>
+          ) => {
+            capturedClaims = claims;
+            return "header.payload.signature";
+          },
+        },
+        serverMetadata: {
+          dpop_signing_alg_values_supported: ["ES256"],
+        },
+      },
+    };
+
+    await createUpstreamDpopProof(
+      oauthSession as never,
+      "com.atproto.repo.createRecord",
+      "POST",
+      { accessToken: "access-token" }
+    );
+
+    expect(capturedClaims?.nonce).toBe("server-nonce");
+    expect(capturedClaims?.htu).toBe(
+      "https://pds.example/xrpc/com.atproto.repo.createRecord"
+    );
   });
 });

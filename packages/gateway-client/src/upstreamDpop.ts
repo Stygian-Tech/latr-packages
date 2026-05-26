@@ -54,18 +54,46 @@ type SessionWithTokenSet = OAuthSession & {
   getTokenSet(refresh: boolean | "auto"): Promise<TokenSet>;
 };
 
+export type UpstreamDpopProofOptions = {
+  /** Use the same access token the gateway `Authorization` header will carry. */
+  accessToken?: string;
+};
+
+async function resolveAccessToken(
+  oauthSession: OAuthSession,
+  accessToken?: string
+): Promise<string> {
+  if (accessToken) return accessToken;
+  const tokenSet = await (oauthSession as SessionWithTokenSet).getTokenSet("auto");
+  return tokenSet.access_token;
+}
+
+async function resolvePdsDpopNonce(
+  oauthSession: OAuthSession,
+  pdsBase: string
+): Promise<string | undefined> {
+  const origin = new URL(`${pdsBase.replace(/\/$/, "")}/`).origin;
+  try {
+    return await oauthSession.server.dpopNonces.get(origin);
+  } catch {
+    return undefined;
+  }
+}
+
 /** Mint a PDS-bound DPoP proof for gateway write-through (`X-ATProto-Upstream-DPoP`). */
 export async function createUpstreamDpopProof(
   oauthSession: OAuthSession,
   xrpcMethod: string,
-  httpMethod: "GET" | "POST"
+  httpMethod: "GET" | "POST",
+  options: UpstreamDpopProofOptions = {}
 ): Promise<string> {
   const tokenInfo = await oauthSession.getTokenInfo();
   const pdsBase = tokenInfo.aud.replace(/\/$/, "");
   const htu = stripQueryAndFragment(`${pdsBase}/xrpc/${xrpcMethod}`);
 
-  const tokenSet = await (oauthSession as SessionWithTokenSet).getTokenSet("auto");
-  const ath = await sha256Base64Url(tokenSet.access_token);
+  const accessToken = await resolveAccessToken(oauthSession, options.accessToken);
+  const ath = await sha256Base64Url(accessToken);
+  const nonce = await resolvePdsDpopNonce(oauthSession, pdsBase);
 
   const key = oauthSession.server.dpopKey;
   const jwk = key.bareJwk;
@@ -83,16 +111,18 @@ export async function createUpstreamDpopProof(
   }
 
   const now = Math.floor(Date.now() / 1000);
-  return key.createJwt(
-    { alg, typ: "dpop+jwt", jwk },
-    {
-      iat: now,
-      jti: Math.random().toString(36).slice(2),
-      htm: httpMethod,
-      htu,
-      ath,
-    }
-  );
+  const claims: Record<string, string | number> = {
+    iat: now,
+    jti: Math.random().toString(36).slice(2),
+    htm: httpMethod,
+    htu,
+    ath,
+  };
+  if (nonce) {
+    claims.nonce = nonce;
+  }
+
+  return key.createJwt({ alg, typ: "dpop+jwt", jwk }, claims);
 }
 
 export type UpstreamProofSpec = {
@@ -104,8 +134,12 @@ export type UpstreamProofSpec = {
 /** Comma-separated upstream proofs for multi-write gateway routes (one proof per PDS call). */
 export async function createUpstreamDpopProofPool(
   oauthSession: OAuthSession,
-  specs: UpstreamProofSpec[]
+  specs: UpstreamProofSpec[],
+  options: UpstreamDpopProofOptions = {}
 ): Promise<string> {
+  const accessToken = await resolveAccessToken(oauthSession, options.accessToken);
+  const proofOptions = { accessToken };
+
   const proofs: string[] = [];
   for (const spec of specs) {
     const count = spec.count ?? 1;
@@ -114,7 +148,8 @@ export async function createUpstreamDpopProofPool(
         await createUpstreamDpopProof(
           oauthSession,
           spec.xrpcMethod,
-          spec.httpMethod
+          spec.httpMethod,
+          proofOptions
         )
       );
     }
@@ -124,10 +159,15 @@ export async function createUpstreamDpopProofPool(
 
 /** Upstream proofs for POST /v1/latr/saves (url + subject saves may create or update multiple records). */
 export async function createSaveUpstreamDpopProofPool(
-  oauthSession: OAuthSession
+  oauthSession: OAuthSession,
+  options: UpstreamDpopProofOptions = {}
 ): Promise<string> {
-  return createUpstreamDpopProofPool(oauthSession, [
-    { xrpcMethod: "com.atproto.repo.createRecord", httpMethod: "POST", count: 2 },
-    { xrpcMethod: "com.atproto.repo.putRecord", httpMethod: "POST", count: 1 },
-  ]);
+  return createUpstreamDpopProofPool(
+    oauthSession,
+    [
+      { xrpcMethod: "com.atproto.repo.createRecord", httpMethod: "POST", count: 2 },
+      { xrpcMethod: "com.atproto.repo.putRecord", httpMethod: "POST", count: 1 },
+    ],
+    options
+  );
 }
