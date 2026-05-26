@@ -8,6 +8,7 @@ export {
   createUpstreamDpopProofPool,
   pdsXrpcMethodForGatewayRequest,
   primePdsDpopNonce,
+  refreshPdsDpopNonce,
   type UpstreamDpopProofOptions,
   type UpstreamProofSpec,
 } from "./upstreamDpop";
