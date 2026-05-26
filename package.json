@@ -2,6 +2,13 @@
   "name": "latr-packages",
   "private": true,
   "workspaces": ["packages/*"],
+  "exports": {
+    "./gateway-client": "./packages/gateway-client/src/index.ts",
+    "./record-keys": "./packages/record-keys/src/index.ts",
+    "./lexicons/com.latr.saved.item.json": "./packages/lexicons/com.latr.saved.item.json",
+    "./lexicons/com.latr.saved.external.json": "./packages/lexicons/com.latr.saved.external.json",
+    "./record-keys/fixtures/stygian-golden-vectors.v1.json": "./packages/record-keys/fixtures/stygian-golden-vectors.v1.json"
+  },
   "scripts": {
     "test": "bun run --filter '*' test",
     "check": "bun test"
