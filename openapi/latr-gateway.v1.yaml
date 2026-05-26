@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: L@tr Gateway API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+  /v1/latr/saves:
+    get:
+      summary: List saved items
+    post:
+      summary: Save URL or subject

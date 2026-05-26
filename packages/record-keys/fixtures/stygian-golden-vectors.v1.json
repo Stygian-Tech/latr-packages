@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "description": "Cross-language golden vectors for Stygian ATProto contract parity (L@tr keys, read-state, URL normalization).",
+  "vectors": {
+    "entryReadStateRkey": {
+      "input": "at://did:plc:alice/site.standard.document/abc123",
+      "canonical": "JPFAJWZIZ7VWQJ3CR2L7PEPRNZBZ6LJ7MKKO3RKWB642BF64NBXQ",
+      "legacyIOSLowerPrefix52": "jpfajwziz7vwqj3cr2l7peprnzbz6lj7mkko3rkwb642bf64nbxq",
+      "legacyHex": "4bca04db28cfeb6827628e97f791f16e439f2d3f6294edc5560fb9a097dc686f"
+    },
+    "latrExternalRkey": {
+      "normalizedUrl": "https://example.com/article",
+      "canonical": "MMSTQKIENDT2HHAGGI6J4OXJR4YQOLLEDS5TP2RXSF7VNO7LKU4Q",
+      "legacyIOSLowerPrefix52": "mmstqkiendt2hhaggi6j4oxjr4yqolleds5tp2rxsf7vno7lku4q"
+    },
+    "latrFingerprint": {
+      "normalizedUrl": "https://example.com/article",
+      "sha256Hex": "632538290468e7a39c06323c9e3ae98f31072d641cbb37ea37917f56bbeb5539"
+    },
+    "normalizeLatrHttpsUrl": [
+      {
+        "input": "HTTP://Example.COM/foo",
+        "output": "https://example.com/foo"
+      },
+      {
+        "input": "https://a.com/x#y",
+        "output": "https://a.com/x"
+      },
+      {
+        "input": "https://a.com/article?utm_campaign=x&utm_source=y&id=7",
+        "output": "https://a.com/article?id=7"
+      },
+      {
+        "input": "ftp://a.com/x",
+        "output": null
+      }
+    ]
+  }
+}

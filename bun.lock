@@ -1,0 +1,28 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "latr-packages",
+    },
+    "packages/gateway-client": {
+      "name": "@stygian/latr-gateway-client",
+      "version": "0.1.0",
+    },
+    "packages/lexicons": {
+      "name": "latr-lexicons",
+      "version": "0.0.0",
+    },
+    "packages/record-keys": {
+      "name": "@stygian/latr-record-keys",
+      "version": "0.1.0",
+    },
+  },
+  "packages": {
+    "@stygian/latr-gateway-client": ["@stygian/latr-gateway-client@workspace:packages/gateway-client"],
+
+    "@stygian/latr-record-keys": ["@stygian/latr-record-keys@workspace:packages/record-keys"],
+
+    "latr-lexicons": ["latr-lexicons@workspace:packages/lexicons"],
+  }
+}
