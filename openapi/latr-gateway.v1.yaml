@@ -12,5 +12,50 @@ paths:
   /v1/latr/saves:
     get:
       summary: List saved items
+      security:
+        - oauthDpop: []
+        - developerKey: []
     post:
       summary: Save URL or subject
+      security:
+        - oauthDpop: []
+        - developerKey: []
+  /v1/latr/developer/clients:
+    get:
+      summary: List developer clients owned by the signed-in DID
+      security:
+        - oauthDpop: []
+    post:
+      summary: Create a developer client
+      security:
+        - oauthDpop: []
+  /v1/latr/developer/clients/{clientId}/keys:
+    get:
+      summary: List API keys for a developer client
+      security:
+        - oauthDpop: []
+    post:
+      summary: Create an API key (shown once)
+      security:
+        - oauthDpop: []
+  /v1/latr/developer/official/clients:
+    post:
+      summary: Provision an official client (OFFICIAL_CLIENT_DID only)
+      security:
+        - oauthDpop: []
+  /v1/latr/developer/usage:
+    get:
+      summary: Usage summary for owned clients
+      security:
+        - oauthDpop: []
+components:
+  securitySchemes:
+    oauthDpop:
+      type: http
+      scheme: bearer
+      description: ATProto OAuth access token with DPoP proof
+    developerKey:
+      type: apiKey
+      in: header
+      name: X-Latr-Client-Id
+      description: Requires X-Latr-API-Key as a companion header
