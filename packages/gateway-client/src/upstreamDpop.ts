@@ -117,43 +117,41 @@ async function captureNonceFromResponse(
 
 const LATR_SAVED_ITEM_COLLECTION = "com.latr.saved.item";
 
+/** Advance the PDS DPoP nonce chain via an authenticated read (never a fake write). */
+async function advancePdsDpopNonceViaListRecords(
+  oauthSession: OAuthSession,
+  pdsBase: string,
+  origin: string
+): Promise<string | undefined> {
+  const params = new URLSearchParams({
+    repo: oauthSession.did,
+    collection: LATR_SAVED_ITEM_COLLECTION,
+    limit: "1",
+  });
+  const response = await oauthSession.fetchHandler(
+    `${pdsBase}/xrpc/com.atproto.repo.listRecords?${params}`,
+    { method: "GET" }
+  );
+  return captureNonceFromResponse(oauthSession, origin, response);
+}
+
 /**
  * Advance the OAuth session's PDS DPoP nonce chain and return the next nonce to
  * embed in an upstream write proof. PDS nonces are single-use; always refresh
  * before minting proofs rather than reusing a cached value from earlier calls.
+ *
+ * Uses GET listRecords so DevTools does not show spurious createRecord/putRecord
+ * 400s during gateway save prep. Record writes still happen only on the gateway.
  */
 export async function refreshPdsDpopNonce(
   oauthSession: OAuthSession,
-  xrpcMethod = "com.atproto.repo.createRecord",
-  httpMethod: "GET" | "POST" = "POST"
+  _xrpcMethod = "com.atproto.repo.createRecord",
+  _httpMethod: "GET" | "POST" = "POST"
 ): Promise<string | undefined> {
   const tokenInfo = await oauthSession.getTokenInfo();
   const pdsBase = tokenInfo.aud.replace(/\/$/, "");
   const origin = pdsOrigin(pdsBase);
-
-  if (httpMethod === "GET" && xrpcMethod === "com.atproto.repo.listRecords") {
-    const params = new URLSearchParams({
-      repo: oauthSession.did,
-      collection: LATR_SAVED_ITEM_COLLECTION,
-      limit: "1",
-    });
-    const response = await oauthSession.fetchHandler(
-      `${pdsBase}/xrpc/${xrpcMethod}?${params}`,
-      { method: "GET" }
-    );
-    return captureNonceFromResponse(oauthSession, origin, response);
-  }
-
-  const response = await oauthSession.fetchHandler(
-    `${pdsBase}/xrpc/${xrpcMethod}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-    }
-  );
-
-  return captureNonceFromResponse(oauthSession, origin, response);
+  return advancePdsDpopNonceViaListRecords(oauthSession, pdsBase, origin);
 }
 
 /**
@@ -170,20 +168,7 @@ export async function primePdsDpopNonce(
   const existing = await readCachedNonce(oauthSession, origin);
   if (existing) return existing;
 
-  const params = new URLSearchParams({
-    repo: oauthSession.did,
-    collection: LATR_SAVED_ITEM_COLLECTION,
-    limit: "1",
-  });
-
-  const listResponse = await oauthSession.fetchHandler(
-    `${pdsBase}/xrpc/com.atproto.repo.listRecords?${params}`,
-    { method: "GET" }
-  );
-  const fromList = await captureNonceFromResponse(oauthSession, origin, listResponse);
-  if (fromList) return fromList;
-
-  return refreshPdsDpopNonce(oauthSession);
+  return advancePdsDpopNonceViaListRecords(oauthSession, pdsBase, origin);
 }
 
 /** Mint a PDS-bound DPoP proof for gateway write-through (`X-ATProto-Upstream-DPoP`). */

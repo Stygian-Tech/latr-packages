@@ -53,7 +53,7 @@ describe("createUpstreamDpopProof", () => {
       { accessToken: "access-token" }
     );
 
-    expect(probedUrl).toContain("com.atproto.repo.putRecord");
+    expect(probedUrl).toContain("com.atproto.repo.listRecords");
     expect(capturedClaims?.nonce).toBe("fresh-nonce");
     expect(capturedClaims?.htu).toBe(
       "https://pds.example/xrpc/com.atproto.repo.putRecord"
@@ -131,7 +131,7 @@ describe("primePdsDpopNonce", () => {
     expect(probed).toBe(false);
   });
 
-  test("calls listRecords then write probe when no nonce is cached", async () => {
+  test("calls listRecords when no nonce is cached", async () => {
     const calls: string[] = [];
 
     const oauthSession = {
@@ -153,17 +153,17 @@ describe("primePdsDpopNonce", () => {
 
     const nonce = await primePdsDpopNonce(oauthSession as never);
 
+    expect(calls).toHaveLength(1);
     expect(calls[0]).toContain(
       "https://pds.example/xrpc/com.atproto.repo.listRecords"
     );
     expect(calls[0]).toContain("repo=did%3Aplc%3Atest");
-    expect(calls[1]).toContain("createRecord");
     expect(nonce).toBeUndefined();
   });
 });
 
 describe("refreshPdsDpopNonce", () => {
-  test("probes the requested XRPC method even when cache is populated", async () => {
+  test("advances nonce via listRecords even for write proofs", async () => {
     const calls: string[] = [];
 
     const oauthSession = {
@@ -174,7 +174,7 @@ describe("refreshPdsDpopNonce", () => {
       fetchHandler: async (url: string, init?: RequestInit) => {
         calls.push(`${init?.method ?? "GET"} ${url}`);
         return new Response(null, {
-          status: 400,
+          status: 200,
           headers: { "DPoP-Nonce": "next-nonce" },
         });
       },
@@ -192,7 +192,7 @@ describe("refreshPdsDpopNonce", () => {
     );
 
     expect(calls).toHaveLength(1);
-    expect(calls[0]).toContain("com.atproto.repo.putRecord");
+    expect(calls[0]).toMatch(/^GET .*listRecords\?/);
     expect(nonce).toBe("next-nonce");
   });
 
@@ -248,7 +248,7 @@ describe("createSaveUpstreamDpopProofPool", () => {
       fetchHandler: async () => {
         probeCount += 1;
         return new Response(null, {
-          status: 400,
+          status: 200,
           headers: { "DPoP-Nonce": `nonce-${probeCount}` },
         });
       },
