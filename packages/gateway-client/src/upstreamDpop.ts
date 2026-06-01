@@ -124,11 +124,25 @@ const LATR_SAVED_ITEM_COLLECTION = "com.latr.saved.item";
  */
 export async function refreshPdsDpopNonce(
   oauthSession: OAuthSession,
-  xrpcMethod = "com.atproto.repo.createRecord"
+  xrpcMethod = "com.atproto.repo.createRecord",
+  httpMethod: "GET" | "POST" = "POST"
 ): Promise<string | undefined> {
   const tokenInfo = await oauthSession.getTokenInfo();
   const pdsBase = tokenInfo.aud.replace(/\/$/, "");
   const origin = pdsOrigin(pdsBase);
+
+  if (httpMethod === "GET" && xrpcMethod === "com.atproto.repo.listRecords") {
+    const params = new URLSearchParams({
+      repo: oauthSession.did,
+      collection: LATR_SAVED_ITEM_COLLECTION,
+      limit: "1",
+    });
+    const response = await oauthSession.fetchHandler(
+      `${pdsBase}/xrpc/${xrpcMethod}?${params}`,
+      { method: "GET" }
+    );
+    return captureNonceFromResponse(oauthSession, origin, response);
+  }
 
   const response = await oauthSession.fetchHandler(
     `${pdsBase}/xrpc/${xrpcMethod}`,
@@ -186,7 +200,8 @@ export async function createUpstreamDpopProof(
   const accessToken = await resolveAccessToken(oauthSession, options.accessToken);
   const ath = await sha256Base64Url(accessToken);
   const nonce =
-    options.pdsDpopNonce ?? (await refreshPdsDpopNonce(oauthSession, xrpcMethod));
+    options.pdsDpopNonce ??
+    (await refreshPdsDpopNonce(oauthSession, xrpcMethod, httpMethod));
 
   if (!nonce) {
     throw new Error("PDS DPoP nonce unavailable after priming; retry save");
@@ -239,7 +254,8 @@ export async function createUpstreamDpopProofPool(
     const count = spec.count ?? 1;
     for (let index = 0; index < count; index += 1) {
       const pdsDpopNonce =
-        options.pdsDpopNonce ?? (await refreshPdsDpopNonce(oauthSession, spec.xrpcMethod));
+        options.pdsDpopNonce ??
+        (await refreshPdsDpopNonce(oauthSession, spec.xrpcMethod, spec.httpMethod));
 
       if (!pdsDpopNonce) {
         throw new Error("PDS DPoP nonce unavailable after priming; retry save");

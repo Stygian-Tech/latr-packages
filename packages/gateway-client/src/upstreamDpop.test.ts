@@ -195,6 +195,42 @@ describe("refreshPdsDpopNonce", () => {
     expect(calls[0]).toContain("com.atproto.repo.putRecord");
     expect(nonce).toBe("next-nonce");
   });
+
+  test("probes listRecords with GET when minting GET upstream proofs", async () => {
+    const calls: string[] = [];
+
+    const oauthSession = {
+      did: "did:plc:test",
+      getTokenInfo: async () => ({
+        aud: "https://pds.example",
+      }),
+      fetchHandler: async (url: string, init?: RequestInit) => {
+        calls.push(`${init?.method ?? "GET"} ${url}`);
+        return new Response(null, {
+          status: 403,
+          headers: { "DPoP-Nonce": "list-nonce" },
+        });
+      },
+      server: {
+        dpopNonces: {
+          get: async () => undefined,
+          set: async () => {},
+        },
+      },
+    };
+
+    const nonce = await refreshPdsDpopNonce(
+      oauthSession as never,
+      "com.atproto.repo.listRecords",
+      "GET"
+    );
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatch(/^GET .*listRecords\?/);
+    expect(calls[0]).toContain("repo=did%3Aplc%3Atest");
+    expect(calls[0]).toContain("collection=com.latr.saved.item");
+    expect(nonce).toBe("list-nonce");
+  });
 });
 
 describe("createSaveUpstreamDpopProofPool", () => {
