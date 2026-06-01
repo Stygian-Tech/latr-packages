@@ -25,3 +25,9 @@ export {
   type UpstreamDpopProofOptions,
   type UpstreamProofSpec,
 } from "./upstreamDpop";
+
+export {
+  LATR_GATEWAY_SAVES_PATH,
+  type LatrGatewayRepoRecord,
+  type LatrGatewaySavedItemsResponse,
+} from "./saves";
