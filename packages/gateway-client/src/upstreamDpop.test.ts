@@ -141,7 +141,10 @@ describe("primePdsDpopNonce", () => {
       }),
       fetchHandler: async (url: string, init?: RequestInit) => {
         calls.push(`${init?.method ?? "GET"} ${url}`);
-        return new Response(null, { status: 200 });
+        return new Response(null, {
+          status: 200,
+          headers: { "DPoP-Nonce": "listed-nonce" },
+        });
       },
       server: {
         dpopNonces: {
@@ -158,7 +161,41 @@ describe("primePdsDpopNonce", () => {
       "https://pds.example/xrpc/com.atproto.repo.listRecords"
     );
     expect(calls[0]).toContain("repo=did%3Aplc%3Atest");
-    expect(nonce).toBeUndefined();
+    expect(nonce).toBe("listed-nonce");
+  });
+
+  test("falls back to createRecord when listRecords omits DPoP-Nonce", async () => {
+    const calls: string[] = [];
+
+    const oauthSession = {
+      did: "did:plc:test",
+      getTokenInfo: async () => ({
+        aud: "https://pds.example",
+      }),
+      fetchHandler: async (url: string, init?: RequestInit) => {
+        calls.push(`${init?.method ?? "GET"} ${url}`);
+        if (url.includes("listRecords")) {
+          return new Response(null, { status: 200 });
+        }
+        return new Response(null, {
+          status: 400,
+          headers: { "DPoP-Nonce": "primed-nonce" },
+        });
+      },
+      server: {
+        dpopNonces: {
+          get: async () => undefined,
+          set: async () => {},
+        },
+      },
+    };
+
+    const nonce = await primePdsDpopNonce(oauthSession as never);
+
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toContain("listRecords");
+    expect(calls[1]).toContain("createRecord");
+    expect(nonce).toBe("primed-nonce");
   });
 });
 
@@ -194,6 +231,44 @@ describe("refreshPdsDpopNonce", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]).toMatch(/^GET .*listRecords\?/);
     expect(nonce).toBe("next-nonce");
+  });
+
+  test("falls back to write probe when listRecords omits DPoP-Nonce", async () => {
+    const calls: string[] = [];
+
+    const oauthSession = {
+      did: "did:plc:test",
+      getTokenInfo: async () => ({
+        aud: "https://pds.example",
+      }),
+      fetchHandler: async (url: string, init?: RequestInit) => {
+        calls.push(`${init?.method ?? "GET"} ${url}`);
+        if (url.includes("listRecords")) {
+          return new Response(null, { status: 200 });
+        }
+        return new Response(null, {
+          status: 400,
+          headers: { "DPoP-Nonce": "delete-nonce" },
+        });
+      },
+      server: {
+        dpopNonces: {
+          get: async () => undefined,
+          set: async () => {},
+        },
+      },
+    };
+
+    const nonce = await refreshPdsDpopNonce(
+      oauthSession as never,
+      "com.atproto.repo.deleteRecord",
+      "POST"
+    );
+
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toMatch(/^GET .*listRecords\?/);
+    expect(calls[1]).toContain("com.atproto.repo.deleteRecord");
+    expect(nonce).toBe("delete-nonce");
   });
 
   test("probes listRecords with GET when minting GET upstream proofs", async () => {

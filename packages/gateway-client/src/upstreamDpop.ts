@@ -115,6 +115,18 @@ async function captureNonceFromResponse(
   return readCachedNonce(oauthSession, origin);
 }
 
+/** Prefer response header only — a successful read may consume a nonce without rotating it. */
+async function captureNonceHeaderOnly(
+  oauthSession: OAuthSession,
+  origin: string,
+  response: Response
+): Promise<string | undefined> {
+  const headerNonce = nonceFromResponse(response);
+  if (!headerNonce) return undefined;
+  await writeCachedNonce(oauthSession, origin, headerNonce);
+  return headerNonce;
+}
+
 const LATR_SAVED_ITEM_COLLECTION = "com.latr.saved.item";
 
 /** Advance the PDS DPoP nonce chain via an authenticated read (never a fake write). */
@@ -132,7 +144,42 @@ async function advancePdsDpopNonceViaListRecords(
     `${pdsBase}/xrpc/com.atproto.repo.listRecords?${params}`,
     { method: "GET" }
   );
+  return captureNonceHeaderOnly(oauthSession, origin, response);
+}
+
+/** Fallback when reads omit DPoP-Nonce; invalid POST bodies still rotate the chain. */
+async function advancePdsDpopNonceViaWriteProbe(
+  oauthSession: OAuthSession,
+  pdsBase: string,
+  origin: string,
+  xrpcMethod: string
+): Promise<string | undefined> {
+  const response = await oauthSession.fetchHandler(`${pdsBase}/xrpc/${xrpcMethod}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({}),
+  });
   return captureNonceFromResponse(oauthSession, origin, response);
+}
+
+async function advancePdsDpopNonce(
+  oauthSession: OAuthSession,
+  pdsBase: string,
+  origin: string,
+  xrpcMethod: string,
+  httpMethod: "GET" | "POST"
+): Promise<string | undefined> {
+  const fromList = await advancePdsDpopNonceViaListRecords(oauthSession, pdsBase, origin);
+  if (fromList) return fromList;
+
+  const fallbackMethod =
+    httpMethod === "GET" ? "com.atproto.repo.createRecord" : xrpcMethod;
+  return advancePdsDpopNonceViaWriteProbe(
+    oauthSession,
+    pdsBase,
+    origin,
+    fallbackMethod
+  );
 }
 
 /**
@@ -145,13 +192,13 @@ async function advancePdsDpopNonceViaListRecords(
  */
 export async function refreshPdsDpopNonce(
   oauthSession: OAuthSession,
-  _xrpcMethod = "com.atproto.repo.createRecord",
-  _httpMethod: "GET" | "POST" = "POST"
+  xrpcMethod = "com.atproto.repo.createRecord",
+  httpMethod: "GET" | "POST" = "POST"
 ): Promise<string | undefined> {
   const tokenInfo = await oauthSession.getTokenInfo();
   const pdsBase = tokenInfo.aud.replace(/\/$/, "");
   const origin = pdsOrigin(pdsBase);
-  return advancePdsDpopNonceViaListRecords(oauthSession, pdsBase, origin);
+  return advancePdsDpopNonce(oauthSession, pdsBase, origin, xrpcMethod, httpMethod);
 }
 
 /**
@@ -168,7 +215,13 @@ export async function primePdsDpopNonce(
   const existing = await readCachedNonce(oauthSession, origin);
   if (existing) return existing;
 
-  return advancePdsDpopNonceViaListRecords(oauthSession, pdsBase, origin);
+  return advancePdsDpopNonce(
+    oauthSession,
+    pdsBase,
+    origin,
+    "com.atproto.repo.createRecord",
+    "POST"
+  );
 }
 
 /** Mint a PDS-bound DPoP proof for gateway write-through (`X-ATProto-Upstream-DPoP`). */
@@ -189,7 +242,7 @@ export async function createUpstreamDpopProof(
     (await refreshPdsDpopNonce(oauthSession, xrpcMethod, httpMethod));
 
   if (!nonce) {
-    throw new Error("PDS DPoP nonce unavailable after priming; retry save");
+    throw new Error("PDS DPoP nonce unavailable after priming; retry the request");
   }
 
   const key = oauthSession.server.dpopKey;
@@ -243,7 +296,7 @@ export async function createUpstreamDpopProofPool(
         (await refreshPdsDpopNonce(oauthSession, spec.xrpcMethod, spec.httpMethod));
 
       if (!pdsDpopNonce) {
-        throw new Error("PDS DPoP nonce unavailable after priming; retry save");
+        throw new Error("PDS DPoP nonce unavailable after priming; retry the request");
       }
 
       proofs.push(
