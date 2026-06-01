@@ -127,7 +127,9 @@ async function captureNonceHeaderOnly(
   return headerNonce;
 }
 
-const LATR_SAVED_ITEM_COLLECTION = "com.latr.saved.item";
+import { COLLECTION_SAVED_ITEM } from "./collections";
+
+const LATR_SAVED_ITEM_COLLECTION = COLLECTION_SAVED_ITEM;
 
 /** Advance the PDS DPoP nonce chain via an authenticated read (never a fake write). */
 async function advancePdsDpopNonceViaListRecords(

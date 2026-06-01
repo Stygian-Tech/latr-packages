@@ -25,8 +25,8 @@ describe("lexicon JSON schemas", () => {
 
   it("includes expected L@tr collections", () => {
     const names = files.map((f) => f.split("/").pop());
-    expect(names).toContain("com.latr.saved.external.json");
-    expect(names).toContain("com.latr.saved.item.json");
+    expect(names).toContain("link.latr.saved.external.json");
+    expect(names).toContain("link.latr.saved.item.json");
   });
 
   for (const file of files) {
@@ -47,7 +47,7 @@ describe("lexicon JSON schemas", () => {
 describe("saved item schema", () => {
   it("main record requires subjectUri and savedAt", () => {
     const schema = JSON.parse(
-      readFileSync(join(ROOT, "com.latr.saved.item.json"), "utf8")
+      readFileSync(join(ROOT, "link.latr.saved.item.json"), "utf8")
     ) as {
       defs: { main: { record: { required?: string[] } } };
     };

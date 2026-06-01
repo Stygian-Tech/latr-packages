@@ -38,11 +38,6 @@ paths:
       summary: Create an API key (shown once)
       security:
         - oauthDpop: []
-  /v1/latr/developer/official/clients:
-    post:
-      summary: Provision an official client (OFFICIAL_CLIENT_DID only)
-      security:
-        - oauthDpop: []
   /v1/latr/developer/usage:
     get:
       summary: Usage summary for owned clients

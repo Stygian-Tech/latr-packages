@@ -17,7 +17,9 @@ export type DeveloperApiKeySummary = {
 };
 
 export type CreateDeveloperClientRequest = {
+  /** Machine id sent as `X-Latr-Client-Id` (`^[a-z][a-z0-9_-]{0,62}$`). */
   clientId: string;
+  /** Optional human label; any Unicode characters are allowed. */
   displayName?: string;
 };
 

@@ -303,7 +303,7 @@ describe("refreshPdsDpopNonce", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]).toMatch(/^GET .*listRecords\?/);
     expect(calls[0]).toContain("repo=did%3Aplc%3Atest");
-    expect(calls[0]).toContain("collection=com.latr.saved.item");
+    expect(calls[0]).toContain("collection=link.latr.saved.item");
     expect(nonce).toBe("list-nonce");
   });
 });

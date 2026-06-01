@@ -27,7 +27,19 @@ export {
 } from "./upstreamDpop";
 
 export {
+  COLLECTION_SAVED_EXTERNAL,
+  COLLECTION_SAVED_ITEM,
+  LATR_REPO_OAUTH_SCOPES,
+  LEGACY_COLLECTION_SAVED_EXTERNAL,
+  LEGACY_COLLECTION_SAVED_ITEM,
+  isLatrExternalWrapperCollection,
+  remapLegacyLatrSubjectUri,
+} from "./collections";
+
+export {
+  LATR_GATEWAY_MIGRATE_LEXICONS_PATH,
   LATR_GATEWAY_SAVES_PATH,
+  type LatrGatewayLexiconMigrationResponse,
   type LatrGatewayRepoRecord,
   type LatrGatewaySavedItemsResponse,
 } from "./saves";
