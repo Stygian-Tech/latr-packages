@@ -354,9 +354,9 @@ describe("createSaveUpstreamDpopProofPool", () => {
       accessToken: "access-token",
     });
 
-    expect(probeCount).toBe(3);
-    expect(proofCount).toBe(3);
-    expect(capturedNonces).toEqual(["nonce-1", "nonce-2", "nonce-3"]);
-    expect(pool.split(",")).toHaveLength(3);
+    expect(probeCount).toBe(4);
+    expect(proofCount).toBe(4);
+    expect(capturedNonces).toEqual(["nonce-1", "nonce-2", "nonce-3", "nonce-4"]);
+    expect(pool.split(",")).toHaveLength(4);
   });
 });

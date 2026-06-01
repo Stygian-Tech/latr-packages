@@ -319,7 +319,7 @@ export async function createSaveUpstreamDpopProofPool(
     oauthSession,
     [
       { xrpcMethod: "com.atproto.repo.createRecord", httpMethod: "POST", count: 2 },
-      { xrpcMethod: "com.atproto.repo.putRecord", httpMethod: "POST", count: 1 },
+      { xrpcMethod: "com.atproto.repo.putRecord", httpMethod: "POST", count: 2 },
     ],
     options
   );
