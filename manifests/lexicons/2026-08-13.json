@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "publishedAt": "2026-08-13T02:53:49Z",
+  "authority": "did:plc:qy5pluw2bsuq2x6albsgkvx3",
+  "pds": "https://oyster.us-east.host.bsky.network",
+  "collection": "com.atproto.lexicon.schema",
+  "records": {
+    "link.latr.auth.probe": "bafyreidd4qfd7wdcl4steqg7lwulpo7aefuvxhgqghwbkdrb4qw5se4jaa",
+    "link.latr.developer.createClient": "bafyreiemznlljaoxpqr3tfdaxgfnu7v4jr2morar4mr5iyqxxa776ug57i",
+    "link.latr.developer.createKey": "bafyreig3lae4imdubo33u7vnjkdaik3qnhgbraps2dggippywbehrbk3fm",
+    "link.latr.developer.defs": "bafyreifj57vtzf2vh2ujw5722g3hr6yzo56goz5zhb2ab32qiadx7tsa4m",
+    "link.latr.developer.deleteClient": "bafyreieyl226cd6exwkstcrerw7sk4ycgjg3pfyc6qo2l7kmpnoupvfpja",
+    "link.latr.developer.getUsage": "bafyreifszkwvm3gtyuueeou6gd3yfz42ib2cmtycdkbibbteaq4lx5gvrq",
+    "link.latr.developer.listClients": "bafyreiciiewbqrn7jrdoow5xsbeqzvhh5rnpgbxiruowp4qhzuja4lmsi4",
+    "link.latr.developer.listKeys": "bafyreiast6tqyzfps3vcl4457j4uahsdck6shsnk7nvmlgtuasfr3uqnva",
+    "link.latr.developer.revokeKey": "bafyreiau6eh2rfrlhimoyinldc6hehy3r7sdwidywb56lafwxzupvig4cm",
+    "link.latr.discovery.resolveUrl": "bafyreicevvyqa3adv6b4bsqrhpd2nlk24w45u7bfwmxajof7wh3vdxges4",
+    "link.latr.preview.getOpenGraph": "bafyreidx6kbljrtk43u3rvziuvvzjft33yt2jnetqf6cfpezmqnnblwxr4",
+    "link.latr.saved.defs": "bafyreiehocjr2zib5zn6fax7oh4jujfwfbjrepyryqj5irf5vjba7izsom",
+    "link.latr.saved.deleteItem": "bafyreicfib67xqsi7lei2vjobw6wdpignnjhgxnewybktzngeyxtxjtjcu",
+    "link.latr.saved.external": "bafyreiautmztdl4eisdnt4guzct2cltpk7gu3373xjyseo2kb7dxscdbji",
+    "link.latr.saved.getItem": "bafyreihxjnfn7fv5hmwofk6hmhbyrloxbigmogb3bdtsywnzs44wbze4gq",
+    "link.latr.saved.item": "bafyreiectscuejrptyj2scm6zv7ynt5jlrzei6f5imq5fny5htzj5ijdua",
+    "link.latr.saved.listItems": "bafyreie5fudyinsrf6liyuql4zbzu6365rtypklmf6jwnci6xi73rmurjm",
+    "link.latr.saved.migrateLegacy": "bafyreif6fztar7p6mnp5lclzjsajmwsmqs5j7gizwnyecsnlwefojnyb44",
+    "link.latr.saved.saveSubject": "bafyreifs2y4lt4uel2stxlvseoekmytivdx6bkrdmlk4xjeazgauf5t5he",
+    "link.latr.saved.saveUrl": "bafyreidy3osk34geeh2kmjm3icla5knhgkjdagbr2szyvgvmeqejyj2zn4",
+    "link.latr.saved.setState": "bafyreibhltredm5ml7bhrt22klih2amb64pbgewehz7syz7gexo3vmgr3m"
+  }
+}
