@@ -1,0 +1,72 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.saved.setState",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": [
+            "itemRkey",
+            "state"
+          ],
+          "properties": {
+            "itemRkey": {
+              "type": "string",
+              "format": "record-key",
+              "maxLength": 512
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "unread",
+                "archived"
+              ]
+            }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "ref",
+          "ref": "link.latr.saved.defs#simpleOk"
+        }
+      },
+      "errors": [
+        {
+          "name": "InvalidRequest"
+        },
+        {
+          "name": "InvalidUrl"
+        },
+        {
+          "name": "AuthRequired"
+        },
+        {
+          "name": "InvalidToken"
+        },
+        {
+          "name": "InvalidDpop"
+        },
+        {
+          "name": "ClientAuthRequired"
+        },
+        {
+          "name": "SavedItemNotFound"
+        },
+        {
+          "name": "Conflict"
+        },
+        {
+          "name": "RateLimitExceeded"
+        },
+        {
+          "name": "UpstreamFailure"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.saved.defs",
+  "defs": {
+    "main": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "record": {
+      "type": "object",
+      "required": [
+        "uri",
+        "cid",
+        "value"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "cid": {
+          "type": "string",
+          "format": "cid"
+        },
+        "value": {
+          "type": "ref",
+          "ref": "link.latr.saved.item"
+        }
+      }
+    },
+    "simpleOk": {
+      "type": "object",
+      "required": [
+        "ok"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        }
+      }
+    },
+    "saveResult": {
+      "type": "object",
+      "required": [
+        "ok",
+        "kind"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": "string",
+          "knownValues": [
+            "url",
+            "subject"
+          ]
+        },
+        "subjectUri": {
+          "type": "string",
+          "format": "at-uri"
+        },
+        "linkedWebUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 8192,
+          "maxGraphemes": 2048
+        },
+        "storage": {
+          "type": "string",
+          "knownValues": [
+            "native",
+            "external"
+          ]
+        }
+      }
+    },
+    "migrationResult": {
+      "type": "object",
+      "required": [
+        "ok",
+        "externalCopied",
+        "itemsCopied",
+        "externalDeleted",
+        "itemsDeleted"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "externalCopied": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "itemsCopied": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "externalDeleted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "itemsDeleted": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

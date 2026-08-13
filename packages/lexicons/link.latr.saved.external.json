@@ -17,15 +17,22 @@
         "properties": {
           "url": {
             "type": "string",
+            "format": "uri",
+            "maxLength": 8192,
+            "maxGraphemes": 2048,
             "description": "Original URL as saved."
           },
           "normalizedUrl": {
             "type": "string",
+            "format": "uri",
+            "maxLength": 8192,
+            "maxGraphemes": 2048,
             "description": "Canonical normalized URL for deduplication."
           },
           "fingerprint": {
             "type": "string",
             "maxLength": 128,
+            "maxGraphemes": 128,
             "description": "Hash of normalizedUrl (e.g. sha256 hex) for debugging and portability."
           },
           "createdAt": {
@@ -34,23 +41,28 @@
           },
           "title": {
             "type": "string",
-            "maxLength": 2048
+            "maxLength": 2048,
+            "maxGraphemes": 512
           },
           "excerpt": {
             "type": "string",
-            "maxLength": 8192
+            "maxLength": 8192,
+            "maxGraphemes": 2048
           },
           "site": {
             "type": "string",
-            "maxLength": 512
+            "maxLength": 512,
+            "maxGraphemes": 128
           },
           "image": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "maxLength": 8192,
+            "maxGraphemes": 2048
           },
           "language": {
             "type": "string",
-            "maxLength": 35
+            "format": "language"
           },
           "publishedAt": {
             "type": "string",
@@ -58,7 +70,8 @@
           },
           "author": {
             "type": "string",
-            "maxLength": 512
+            "maxLength": 512,
+            "maxGraphemes": 128
           }
         }
       }
