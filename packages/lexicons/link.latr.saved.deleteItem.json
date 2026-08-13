@@ -3,6 +3,7 @@
   "id": "link.latr.saved.deleteItem",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.saved.deleteItem.",
       "type": "procedure",
       "input": {
         "encoding": "application/json",

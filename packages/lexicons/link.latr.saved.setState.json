@@ -3,6 +3,7 @@
   "id": "link.latr.saved.setState",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.saved.setState.",
       "type": "procedure",
       "input": {
         "encoding": "application/json",
@@ -23,7 +24,9 @@
               "enum": [
                 "unread",
                 "archived"
-              ]
+              ],
+              "maxLength": 16,
+              "maxGraphemes": 16
             }
           }
         }

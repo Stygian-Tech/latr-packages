@@ -3,6 +3,7 @@
   "id": "link.latr.preview.getOpenGraph",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.preview.getOpenGraph.",
       "type": "query",
       "parameters": {
         "type": "params",

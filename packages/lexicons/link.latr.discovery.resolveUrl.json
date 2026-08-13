@@ -3,6 +3,7 @@
   "id": "link.latr.discovery.resolveUrl",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.discovery.resolveUrl.",
       "type": "query",
       "parameters": {
         "type": "params",

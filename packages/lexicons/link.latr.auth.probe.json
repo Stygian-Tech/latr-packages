@@ -3,6 +3,7 @@
   "id": "link.latr.auth.probe",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.auth.probe.",
       "type": "query",
       "parameters": {
         "type": "params",

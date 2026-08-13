@@ -2,11 +2,6 @@
   "lexicon": 1,
   "id": "link.latr.saved.defs",
   "defs": {
-    "main": {
-      "type": "object",
-      "required": [],
-      "properties": {}
-    },
     "record": {
       "type": "object",
       "required": [
@@ -55,11 +50,15 @@
           "knownValues": [
             "url",
             "subject"
-          ]
+          ],
+          "maxLength": 16,
+          "maxGraphemes": 16
         },
         "subjectUri": {
           "type": "string",
-          "format": "at-uri"
+          "format": "at-uri",
+          "maxLength": 8192,
+          "maxGraphemes": 2048
         },
         "linkedWebUrl": {
           "type": "string",
@@ -72,7 +71,9 @@
           "knownValues": [
             "native",
             "external"
-          ]
+          ],
+          "maxLength": 16,
+          "maxGraphemes": 16
         }
       }
     },

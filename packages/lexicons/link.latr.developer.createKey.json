@@ -3,6 +3,7 @@
   "id": "link.latr.developer.createKey",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.developer.createKey.",
       "type": "procedure",
       "input": {
         "encoding": "application/json",

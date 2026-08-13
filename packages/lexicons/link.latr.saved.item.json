@@ -12,7 +12,9 @@
         "properties": {
           "subjectUri": {
             "type": "string",
-            "format": "at-uri"
+            "format": "at-uri",
+            "maxLength": 8192,
+            "maxGraphemes": 2048
           },
           "savedAt": {
             "type": "string",
@@ -21,6 +23,8 @@
           "state": {
             "type": "string",
             "enum": ["unread", "archived"],
+            "maxLength": 16,
+            "maxGraphemes": 16,
             "description": "Queue state; defaults to unread in clients when omitted."
           },
           "tags": {

@@ -2,11 +2,6 @@
   "lexicon": 1,
   "id": "link.latr.developer.defs",
   "defs": {
-    "main": {
-      "type": "object",
-      "required": [],
-      "properties": {}
-    },
     "client": {
       "type": "object",
       "required": [
@@ -29,7 +24,9 @@
           "type": "string",
           "knownValues": [
             "developer"
-          ]
+          ],
+          "maxLength": 16,
+          "maxGraphemes": 16
         },
         "createdAt": {
           "type": "string",

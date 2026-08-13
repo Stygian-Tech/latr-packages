@@ -3,6 +3,7 @@
   "id": "link.latr.saved.saveUrl",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.saved.saveUrl.",
       "type": "procedure",
       "input": {
         "encoding": "application/json",
