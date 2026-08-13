@@ -3,6 +3,7 @@
   "id": "link.latr.saved.getItem",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.saved.getItem.",
       "type": "query",
       "parameters": {
         "type": "params",

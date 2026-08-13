@@ -3,6 +3,7 @@
   "id": "link.latr.developer.listClients",
   "defs": {
     "main": {
+      "description": "L@tr XRPC method link.latr.developer.listClients.",
       "type": "query",
       "parameters": {
         "type": "params",

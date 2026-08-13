@@ -16,7 +16,14 @@ const object = (required: string[], properties: Record<string, unknown>) => ({ t
 const params = (required: string[], properties: Record<string, unknown>) => ({ type: "params", required, properties });
 
 function schema(id: string, main: Record<string, unknown>, defs: Record<string, unknown> = {}) {
-  return { lexicon: 1, id, defs: { main, ...defs } };
+  const describedMain = main.type === "query" || main.type === "procedure"
+    ? { description: `L@tr XRPC method ${id}.`, ...main }
+    : main;
+  return { lexicon: 1, id, defs: { main: describedMain, ...defs } };
+}
+
+function defsSchema(id: string, defs: Record<string, unknown>) {
+  return { lexicon: 1, id, defs };
 }
 
 function query(parameters: unknown, output: unknown, methodErrors = errors) {
@@ -38,16 +45,16 @@ const emptyParams = params([], {});
 const emptyInput = object([], {});
 
 const schemas: Record<string, unknown> = {
-  "link.latr.saved.defs": schema("link.latr.saved.defs", object([], {}), {
+  "link.latr.saved.defs": defsSchema("link.latr.saved.defs", {
     record: object(["uri", "cid", "value"], {
       uri: string({ format: "at-uri" }), cid: string({ format: "cid" }), value: ref("link.latr.saved.item"),
     }),
     simpleOk: object(["ok"], { ok: boolean }),
     saveResult: object(["ok", "kind"], {
       ok: boolean,
-      kind: string({ knownValues: ["url", "subject"] }),
-      subjectUri: string({ format: "at-uri" }), linkedWebUrl: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
-      storage: string({ knownValues: ["native", "external"] }),
+      kind: string({ knownValues: ["url", "subject"], maxLength: 16, maxGraphemes: 16 }),
+      subjectUri: string({ format: "at-uri", maxLength: 8192, maxGraphemes: 2048 }), linkedWebUrl: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
+      storage: string({ knownValues: ["native", "external"], maxLength: 16, maxGraphemes: 16 }),
     }),
     migrationResult: object(["ok", "externalCopied", "itemsCopied", "externalDeleted", "itemsDeleted"], {
       ok: boolean, externalCopied: integer({ minimum: 0 }), itemsCopied: integer({ minimum: 0 }),
@@ -72,7 +79,7 @@ const schemas: Record<string, unknown> = {
     }), saveOutput
   )),
   "link.latr.saved.setState": schema("link.latr.saved.setState", procedure(
-    object(["itemRkey", "state"], { itemRkey: string({ format: "record-key", maxLength: 512 }), state: string({ enum: ["unread", "archived"] }) }), simpleOK
+    object(["itemRkey", "state"], { itemRkey: string({ format: "record-key", maxLength: 512 }), state: string({ enum: ["unread", "archived"], maxLength: 16, maxGraphemes: 16 }) }), simpleOK
   )),
   "link.latr.saved.deleteItem": schema("link.latr.saved.deleteItem", procedure(
     object(["itemRkey"], { itemRkey: string({ format: "record-key", maxLength: 512 }) }), simpleOK
@@ -103,10 +110,10 @@ const schemas: Record<string, unknown> = {
   )),
 };
 
-schemas["link.latr.developer.defs"] = schema("link.latr.developer.defs", object([], {}), {
+schemas["link.latr.developer.defs"] = defsSchema("link.latr.developer.defs", {
   client: object(["clientId", "kind", "createdAt"], {
     clientId: string({ maxLength: 128, maxGraphemes: 128 }), displayName: string({ maxLength: 256, maxGraphemes: 128 }),
-    kind: string({ knownValues: ["developer"] }), createdAt: string({ format: "datetime" }),
+    kind: string({ knownValues: ["developer"], maxLength: 16, maxGraphemes: 16 }), createdAt: string({ format: "datetime" }),
   }),
   key: object(["keyId", "createdAt"], {
     keyId: string({ maxLength: 128, maxGraphemes: 128 }), label: string({ maxLength: 256, maxGraphemes: 128 }),
