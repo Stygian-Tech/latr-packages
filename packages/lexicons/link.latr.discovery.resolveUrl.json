@@ -1,0 +1,89 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.discovery.resolveUrl",
+  "defs": {
+    "main": {
+      "type": "query",
+      "parameters": {
+        "type": "params",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 8192,
+            "maxGraphemes": 2048
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": [
+            "inputUrl"
+          ],
+          "properties": {
+            "inputUrl": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 8192,
+              "maxGraphemes": 2048
+            },
+            "normalizedUrl": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 8192,
+              "maxGraphemes": 2048
+            },
+            "atUri": {
+              "type": "string",
+              "format": "at-uri",
+              "maxLength": 8192,
+              "maxGraphemes": 2048
+            },
+            "source": {
+              "type": "string",
+              "maxLength": 128,
+              "maxGraphemes": 128
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "name": "InvalidRequest"
+        },
+        {
+          "name": "InvalidUrl"
+        },
+        {
+          "name": "AuthRequired"
+        },
+        {
+          "name": "InvalidToken"
+        },
+        {
+          "name": "InvalidDpop"
+        },
+        {
+          "name": "ClientAuthRequired"
+        },
+        {
+          "name": "SavedItemNotFound"
+        },
+        {
+          "name": "Conflict"
+        },
+        {
+          "name": "RateLimitExceeded"
+        },
+        {
+          "name": "UpstreamFailure"
+        }
+      ]
+    }
+  }
+}

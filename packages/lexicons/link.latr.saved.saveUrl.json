@@ -1,0 +1,65 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.saved.saveUrl",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 8192,
+              "maxGraphemes": 2048
+            }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "ref",
+          "ref": "link.latr.saved.defs#saveResult"
+        }
+      },
+      "errors": [
+        {
+          "name": "InvalidRequest"
+        },
+        {
+          "name": "InvalidUrl"
+        },
+        {
+          "name": "AuthRequired"
+        },
+        {
+          "name": "InvalidToken"
+        },
+        {
+          "name": "InvalidDpop"
+        },
+        {
+          "name": "ClientAuthRequired"
+        },
+        {
+          "name": "SavedItemNotFound"
+        },
+        {
+          "name": "Conflict"
+        },
+        {
+          "name": "RateLimitExceeded"
+        },
+        {
+          "name": "UpstreamFailure"
+        }
+      ]
+    }
+  }
+}

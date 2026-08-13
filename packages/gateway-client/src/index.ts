@@ -43,3 +43,5 @@ export {
   type LatrGatewayRepoRecord,
   type LatrGatewaySavedItemsResponse,
 } from "./saves";
+
+export * from "./xrpc";

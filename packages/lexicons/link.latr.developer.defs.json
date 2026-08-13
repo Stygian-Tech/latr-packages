@@ -1,0 +1,156 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.developer.defs",
+  "defs": {
+    "main": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "client": {
+      "type": "object",
+      "required": [
+        "clientId",
+        "kind",
+        "createdAt"
+      ],
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "maxLength": 128,
+          "maxGraphemes": 128
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 256,
+          "maxGraphemes": 128
+        },
+        "kind": {
+          "type": "string",
+          "knownValues": [
+            "developer"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "key": {
+      "type": "object",
+      "required": [
+        "keyId",
+        "createdAt"
+      ],
+      "properties": {
+        "keyId": {
+          "type": "string",
+          "maxLength": 128,
+          "maxGraphemes": 128
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 256,
+          "maxGraphemes": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "revokedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "createdKey": {
+      "type": "object",
+      "required": [
+        "keyId",
+        "clientId",
+        "apiKey",
+        "createdAt"
+      ],
+      "properties": {
+        "keyId": {
+          "type": "string",
+          "maxLength": 128,
+          "maxGraphemes": 128
+        },
+        "clientId": {
+          "type": "string",
+          "maxLength": 128,
+          "maxGraphemes": 128
+        },
+        "apiKey": {
+          "type": "string",
+          "maxLength": 512,
+          "maxGraphemes": 512
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 256,
+          "maxGraphemes": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "usageBucket": {
+      "type": "object",
+      "required": [
+        "routeFamily",
+        "requestCount"
+      ],
+      "properties": {
+        "routeFamily": {
+          "type": "string",
+          "maxLength": 256,
+          "maxGraphemes": 256
+        },
+        "requestCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "required": [
+        "clientId",
+        "usageDate",
+        "buckets"
+      ],
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "maxLength": 128,
+          "maxGraphemes": 128
+        },
+        "usageDate": {
+          "type": "string",
+          "maxLength": 10,
+          "maxGraphemes": 10
+        },
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "ref",
+            "ref": "#usageBucket"
+          }
+        },
+        "dailyLimit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remaining": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.auth.probe",
+  "defs": {
+    "main": {
+      "type": "query",
+      "parameters": {
+        "type": "params",
+        "required": [],
+        "properties": {}
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "did",
+            "pdsWriteThrough",
+            "sampleCount",
+            "upstreamDpop"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "did": {
+              "type": "string",
+              "format": "did"
+            },
+            "clientId": {
+              "type": "string",
+              "maxLength": 128,
+              "maxGraphemes": 128
+            },
+            "pdsWriteThrough": {
+              "type": "boolean"
+            },
+            "sampleCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "upstreamDpop": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "name": "InvalidRequest"
+        },
+        {
+          "name": "InvalidUrl"
+        },
+        {
+          "name": "AuthRequired"
+        },
+        {
+          "name": "InvalidToken"
+        },
+        {
+          "name": "InvalidDpop"
+        },
+        {
+          "name": "ClientAuthRequired"
+        },
+        {
+          "name": "SavedItemNotFound"
+        },
+        {
+          "name": "Conflict"
+        },
+        {
+          "name": "RateLimitExceeded"
+        },
+        {
+          "name": "UpstreamFailure"
+        }
+      ]
+    }
+  }
+}

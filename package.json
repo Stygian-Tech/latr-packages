@@ -7,11 +7,12 @@
     "./record-keys": "./packages/record-keys/src/index.ts",
     "./collections": "./packages/gateway-client/src/collections.ts",
     "./lexicons/link.latr.saved.item.json": "./packages/lexicons/link.latr.saved.item.json",
+    "./lexicons/*.json": "./packages/lexicons/*.json",
     "./lexicons/link.latr.saved.external.json": "./packages/lexicons/link.latr.saved.external.json",
     "./record-keys/fixtures/stygian-golden-vectors.v1.json": "./packages/record-keys/fixtures/stygian-golden-vectors.v1.json"
   },
   "scripts": {
     "test": "bun run --filter '*' test",
-    "check": "bun test"
+    "check": "bun scripts/generate-xrpc-lexicons.ts && bun test"
   }
 }
