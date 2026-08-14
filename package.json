@@ -9,6 +9,7 @@
     "./lexicons/link.latr.saved.item.json": "./packages/lexicons/link.latr.saved.item.json",
     "./lexicons/*.json": "./packages/lexicons/*.json",
     "./lexicons/link.latr.saved.external.json": "./packages/lexicons/link.latr.saved.external.json",
+    "./lexicons/link.latr.bookmarks.metadata.json": "./packages/lexicons/link.latr.bookmarks.metadata.json",
     "./record-keys/fixtures/stygian-golden-vectors.v1.json": "./packages/record-keys/fixtures/stygian-golden-vectors.v1.json"
   },
   "scripts": {

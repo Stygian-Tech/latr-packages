@@ -127,9 +127,9 @@ async function captureNonceHeaderOnly(
   return headerNonce;
 }
 
-import { COLLECTION_SAVED_ITEM } from "./collections";
+import { COLLECTION_BOOKMARK } from "./collections";
 
-const LATR_SAVED_ITEM_COLLECTION = COLLECTION_SAVED_ITEM;
+const LATR_SAVED_ITEM_COLLECTION = COLLECTION_BOOKMARK;
 
 /** Advance the PDS DPoP nonce chain via an authenticated read (never a fake write). */
 async function advancePdsDpopNonceViaListRecords(
@@ -320,8 +320,8 @@ export async function createSaveUpstreamDpopProofPool(
   return createUpstreamDpopProofPool(
     oauthSession,
     [
-      { xrpcMethod: "com.atproto.repo.createRecord", httpMethod: "POST", count: 2 },
-      { xrpcMethod: "com.atproto.repo.putRecord", httpMethod: "POST", count: 2 },
+      { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 2 },
+      { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 2 },
     ],
     options
   );
