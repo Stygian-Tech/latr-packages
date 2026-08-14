@@ -64,7 +64,7 @@ describe("XRPC method contracts", () => {
     return ["query", "procedure"].includes(json.defs?.main?.type ?? "");
   });
 
-  it("publishes all 23 methods", () => expect(methodFiles).toHaveLength(23));
+  it("publishes all 24 methods", () => expect(methodFiles).toHaveLength(24));
 
   for (const file of methodFiles) {
     it(`${file.split("/").pop()} declares transport and stable errors`, () => {

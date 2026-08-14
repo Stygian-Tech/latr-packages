@@ -197,6 +197,42 @@
           "maxGraphemes": 512
         }
       }
+    },
+    "metadataSyncResult": {
+      "type": "object",
+      "required": [
+        "ok",
+        "scanned",
+        "created",
+        "reused",
+        "skippedConflict"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "scanned": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "created": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reused": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skippedConflict": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cursor": {
+          "type": "string",
+          "maxLength": 2048,
+          "maxGraphemes": 512
+        }
+      }
     }
   }
 }

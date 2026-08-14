@@ -88,6 +88,11 @@ const schemas: Record<string, unknown> = {
       duplicates: integer({ minimum: 0 }), skippedConflict: integer({ minimum: 0 }), cached: integer({ minimum: 0 }),
       retired: integer({ minimum: 0 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
     }),
+    metadataSyncResult: object(["ok", "scanned", "created", "reused", "skippedConflict"], {
+      ok: boolean,
+      scanned: integer({ minimum: 0 }), created: integer({ minimum: 0 }), reused: integer({ minimum: 0 }),
+      skippedConflict: integer({ minimum: 0 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }),
   }),
   "link.latr.bookmarks.listBookmarks": schema("link.latr.bookmarks.listBookmarks", query(
     params([], { limit: integer({ minimum: 1, maximum: 100, default: 50 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
@@ -103,6 +108,10 @@ const schemas: Record<string, unknown> = {
       subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
       tags: array(string({ maxLength: 640, maxGraphemes: 64 }), { maxLength: 100 }),
     }), bookmarkView, bookmarkErrors
+  )),
+  "link.latr.bookmarks.syncMetadata": schema("link.latr.bookmarks.syncMetadata", procedure(
+    object([], { limit: integer({ minimum: 1, maximum: 100, default: 50 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    ref("link.latr.bookmarks.defs#metadataSyncResult"), bookmarkErrors
   )),
   "link.latr.bookmarks.setState": schema("link.latr.bookmarks.setState", procedure(
     object(["bookmarkUri", "state"], {

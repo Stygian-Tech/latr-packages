@@ -7,6 +7,7 @@ export const LATR_XRPC = Object.freeze({
   listBookmarks: descriptor("link.latr.bookmarks.listBookmarks", "query"),
   getBookmark: descriptor("link.latr.bookmarks.getBookmark", "query"),
   saveBookmark: descriptor("link.latr.bookmarks.saveBookmark", "procedure"),
+  syncBookmarkMetadata: descriptor("link.latr.bookmarks.syncMetadata", "procedure"),
   setBookmarkState: descriptor("link.latr.bookmarks.setState", "procedure"),
   deleteBookmark: descriptor("link.latr.bookmarks.deleteBookmark", "procedure"),
   migrateBookmarks: descriptor("link.latr.bookmarks.migrateLegacy", "procedure"),
@@ -57,6 +58,15 @@ export type LatrBookmarkView = LatrRepoRecord<CommunityBookmarkRecord> & {
 export type LatrListBookmarksParams = { limit?: number; cursor?: string };
 export type LatrListBookmarksOutput = { bookmarks: LatrBookmarkView[]; cursor?: string };
 export type LatrSaveBookmarkInput = { subject: string; tags?: string[] };
+export type LatrSyncBookmarkMetadataInput = { limit?: number; cursor?: string };
+export type LatrBookmarkMetadataSyncResult = {
+  ok: boolean;
+  scanned: number;
+  created: number;
+  reused: number;
+  skippedConflict: number;
+  cursor?: string;
+};
 export type LatrSetBookmarkStateInput = { bookmarkUri: string; state: "unread" | "archived" };
 export type LatrDeleteBookmarkInput = { bookmarkUri: string };
 export type LatrMigrationInput = { limit?: number; cursor?: string };
@@ -85,6 +95,7 @@ export class LatrXrpcClient {
   listBookmarks(parameters: LatrListBookmarksParams = {}) { return this.transport.request<LatrListBookmarksOutput>(LATR_XRPC.listBookmarks, { params: parameters }); }
   getBookmark(subject: string) { return this.transport.request<{ bookmark?: LatrBookmarkView }>(LATR_XRPC.getBookmark, { params: { subject } }); }
   saveBookmark(input: LatrSaveBookmarkInput) { return this.transport.request<LatrBookmarkView>(LATR_XRPC.saveBookmark, { input }); }
+  syncBookmarkMetadata(input: LatrSyncBookmarkMetadataInput = {}) { return this.transport.request<LatrBookmarkMetadataSyncResult>(LATR_XRPC.syncBookmarkMetadata, { input }); }
   setBookmarkState(input: LatrSetBookmarkStateInput) { return this.transport.request<LatrSimpleOk>(LATR_XRPC.setBookmarkState, { input }); }
   deleteBookmark(input: LatrDeleteBookmarkInput) { return this.transport.request<LatrSimpleOk>(LATR_XRPC.deleteBookmark, { input }); }
   migrateLegacy(input: LatrMigrationInput = {}) { return this.transport.request<LatrMigrationResult>(LATR_XRPC.migrateBookmarks, { input }); }

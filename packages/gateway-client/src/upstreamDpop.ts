@@ -45,6 +45,15 @@ export function bookmarkUpstreamProofPlanForGatewayRequest(
       ],
     };
   }
+  if (method === "POST" && path === latrXrpcPath(LATR_XRPC.syncBookmarkMetadata)) {
+    return {
+      transport: "header",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 9 },
+        { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
+      ],
+    };
+  }
   if (
     (method === "PATCH" && path === latrXrpcPath(LATR_XRPC.setBookmarkState)) ||
     (method === "POST" && path === latrXrpcPath(LATR_XRPC.deleteBookmark))

@@ -15,6 +15,7 @@ describe("bookmarkUpstreamProofPlanForGatewayRequest", () => {
       ["GET", "/xrpc/link.latr.bookmarks.listBookmarks?limit=50", "header", 9],
       ["GET", "/xrpc/link.latr.bookmarks.getBookmark#subject", "header", 9],
       ["POST", "/xrpc/link.latr.bookmarks.saveBookmark", "header", 11],
+      ["POST", "/xrpc/link.latr.bookmarks.syncMetadata", "header", 10],
       ["PATCH", "/xrpc/link.latr.bookmarks.setState", "header", 3],
       ["POST", "/xrpc/link.latr.bookmarks.deleteBookmark", "header", 3],
       ["POST", "/xrpc/link.latr.bookmarks.migrateLegacy", "body", 90],
