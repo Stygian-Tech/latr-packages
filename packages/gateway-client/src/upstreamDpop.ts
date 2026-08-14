@@ -1,4 +1,74 @@
 import type { OAuthSession } from "@atproto/oauth-client-browser";
+import { LATR_XRPC, latrXrpcPath } from "./xrpc";
+
+export type LatrBookmarkUpstreamProofPlan = Readonly<{
+  transport: "header" | "body";
+  specs: readonly UpstreamProofSpec[];
+}>;
+
+function normalizedGatewayPath(gatewayPath: string): string {
+  const path = gatewayPath.startsWith("/") ? gatewayPath : `/${gatewayPath}`;
+  return stripQueryAndFragment(path);
+}
+
+/**
+ * Exact PDS calls made by each bookmark XRPC route. Consumers must mint one
+ * proof per call, in this order. Migration carries its larger pool in the JSON
+ * body to avoid reverse-proxy header limits.
+ */
+export function bookmarkUpstreamProofPlanForGatewayRequest(
+  gatewayMethod: string,
+  gatewayPath: string
+): LatrBookmarkUpstreamProofPlan | null {
+  const method = gatewayMethod.toUpperCase();
+  const path = normalizedGatewayPath(gatewayPath);
+
+  if (method === "GET" && path === latrXrpcPath(LATR_XRPC.listBookmarks)) {
+    return { transport: "header", specs: [{ xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 9 }] };
+  }
+  if (method === "GET" && path === latrXrpcPath(LATR_XRPC.getBookmark)) {
+    return {
+      transport: "header",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 8 },
+        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 1 },
+      ],
+    };
+  }
+  if (method === "POST" && path === latrXrpcPath(LATR_XRPC.saveBookmark)) {
+    return {
+      transport: "header",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 8 },
+        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 2 },
+        { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
+      ],
+    };
+  }
+  if (
+    (method === "PATCH" && path === latrXrpcPath(LATR_XRPC.setBookmarkState)) ||
+    (method === "POST" && path === latrXrpcPath(LATR_XRPC.deleteBookmark))
+  ) {
+    return {
+      transport: "header",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 2 },
+        { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
+      ],
+    };
+  }
+  if (method === "POST" && path === latrXrpcPath(LATR_XRPC.migrateBookmarks)) {
+    return {
+      transport: "body",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 40 },
+        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 25 },
+        { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 25 },
+      ],
+    };
+  }
+  return null;
+}
 
 /** PDS XRPC method the gateway write-through path uses for a gateway route. */
 export function pdsXrpcMethodForGatewayRequest(
@@ -6,7 +76,15 @@ export function pdsXrpcMethodForGatewayRequest(
   gatewayPath: string
 ): { xrpcMethod: string; httpMethod: "GET" | "POST" } | null {
   const method = gatewayMethod.toUpperCase();
-  const path = gatewayPath.startsWith("/") ? gatewayPath : `/${gatewayPath}`;
+  const path = normalizedGatewayPath(gatewayPath);
+
+  const bookmarkPlan = bookmarkUpstreamProofPlanForGatewayRequest(method, path);
+  if (bookmarkPlan) {
+    const primary = bookmarkPlan.specs.at(-1);
+    return primary
+      ? { xrpcMethod: primary.xrpcMethod, httpMethod: primary.httpMethod }
+      : null;
+  }
 
   if (method === "GET" && path === "/v1/latr/saves") {
     return { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET" };
@@ -281,6 +359,12 @@ export type UpstreamProofSpec = {
   count?: number;
 };
 
+export type LatrBookmarkMigrationInput = {
+  limit?: number;
+  cursor?: string;
+  [key: string]: unknown;
+};
+
 /** Comma-separated upstream proofs for multi-write gateway routes (one proof per PDS call). */
 export async function createUpstreamDpopProofPool(
   oauthSession: OAuthSession,
@@ -290,12 +374,13 @@ export async function createUpstreamDpopProofPool(
   const accessToken = await resolveAccessToken(oauthSession, options.accessToken);
 
   const proofs: string[] = [];
+  let suppliedNonce = options.pdsDpopNonce;
   for (const spec of specs) {
     const count = spec.count ?? 1;
     for (let index = 0; index < count; index += 1) {
-      const pdsDpopNonce =
-        options.pdsDpopNonce ??
+      const pdsDpopNonce = suppliedNonce ??
         (await refreshPdsDpopNonce(oauthSession, spec.xrpcMethod, spec.httpMethod));
+      suppliedNonce = undefined;
 
       if (!pdsDpopNonce) {
         throw new Error("PDS DPoP nonce unavailable after priming; retry the request");
@@ -310,6 +395,46 @@ export async function createUpstreamDpopProofPool(
     }
   }
   return proofs.join(",");
+}
+
+/** Mint the complete ordered proof pool required by a bookmark XRPC request. */
+export async function createBookmarkUpstreamDpopProofPool(
+  oauthSession: OAuthSession,
+  gatewayMethod: string,
+  gatewayPath: string,
+  options: UpstreamDpopProofOptions = {}
+): Promise<string> {
+  const plan = bookmarkUpstreamProofPlanForGatewayRequest(gatewayMethod, gatewayPath);
+  if (!plan) {
+    throw new Error(`Unsupported L@tr bookmark XRPC route: ${gatewayMethod.toUpperCase()} ${normalizedGatewayPath(gatewayPath)}`);
+  }
+  return createUpstreamDpopProofPool(oauthSession, [...plan.specs], options);
+}
+
+/** Add the migration proof pool to the request body while preserving its input. */
+export async function createBookmarkMigrationRequestInput(
+  oauthSession: OAuthSession,
+  input: LatrBookmarkMigrationInput = {},
+  options: UpstreamDpopProofOptions = {}
+): Promise<LatrBookmarkMigrationInput & { upstreamDpopProof: string }> {
+  return {
+    ...input,
+    upstreamDpopProof: await createBookmarkUpstreamDpopProofPool(
+      oauthSession,
+      "POST",
+      latrXrpcPath(LATR_XRPC.migrateBookmarks),
+      options
+    ),
+  };
+}
+
+/** Serialize a migration request with its body-carried upstream proof pool. */
+export async function createBookmarkMigrationRequestBody(
+  oauthSession: OAuthSession,
+  input: LatrBookmarkMigrationInput = {},
+  options: UpstreamDpopProofOptions = {}
+): Promise<string> {
+  return JSON.stringify(await createBookmarkMigrationRequestInput(oauthSession, input, options));
 }
 
 /** Upstream proofs for POST /v1/latr/saves (url + subject saves may create or update multiple records). */

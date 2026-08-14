@@ -16,6 +16,10 @@ export {
 } from "./developer";
 
 export {
+  bookmarkUpstreamProofPlanForGatewayRequest,
+  createBookmarkMigrationRequestBody,
+  createBookmarkMigrationRequestInput,
+  createBookmarkUpstreamDpopProofPool,
   createSaveUpstreamDpopProofPool,
   createUpstreamDpopProof,
   createUpstreamDpopProofPool,
@@ -24,6 +28,8 @@ export {
   refreshPdsDpopNonce,
   type UpstreamDpopProofOptions,
   type UpstreamProofSpec,
+  type LatrBookmarkMigrationInput,
+  type LatrBookmarkUpstreamProofPlan,
 } from "./upstreamDpop";
 
 export {

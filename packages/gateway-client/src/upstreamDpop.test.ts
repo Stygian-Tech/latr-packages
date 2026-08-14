@@ -1,11 +1,71 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  bookmarkUpstreamProofPlanForGatewayRequest,
+  createBookmarkMigrationRequestInput,
   createSaveUpstreamDpopProofPool,
   createUpstreamDpopProof,
   primePdsDpopNonce,
   refreshPdsDpopNonce,
 } from "./upstreamDpop";
+
+describe("bookmarkUpstreamProofPlanForGatewayRequest", () => {
+  test("publishes the ordered proof contracts for every bookmark XRPC route", () => {
+    const cases = [
+      ["GET", "/xrpc/link.latr.bookmarks.listBookmarks?limit=50", "header", 9],
+      ["GET", "/xrpc/link.latr.bookmarks.getBookmark#subject", "header", 9],
+      ["POST", "/xrpc/link.latr.bookmarks.saveBookmark", "header", 11],
+      ["PATCH", "/xrpc/link.latr.bookmarks.setState", "header", 3],
+      ["POST", "/xrpc/link.latr.bookmarks.deleteBookmark", "header", 3],
+      ["POST", "/xrpc/link.latr.bookmarks.migrateLegacy", "body", 90],
+    ] as const;
+
+    for (const [method, path, transport, proofCount] of cases) {
+      const plan = bookmarkUpstreamProofPlanForGatewayRequest(method, path);
+      expect(plan?.transport).toBe(transport);
+      expect(plan?.specs.reduce((sum, spec) => sum + (spec.count ?? 1), 0)).toBe(proofCount);
+    }
+  });
+
+  test("rejects incorrect verbs and unrelated routes", () => {
+    expect(bookmarkUpstreamProofPlanForGatewayRequest("POST", "/xrpc/link.latr.bookmarks.listBookmarks")).toBeNull();
+    expect(bookmarkUpstreamProofPlanForGatewayRequest("GET", "/xrpc/link.latr.saved.listItems")).toBeNull();
+  });
+
+  test("migration input preserves cursor fields and carries the complete pool", async () => {
+    let nonceIndex = 0;
+    let proofIndex = 0;
+    const oauthSession = {
+      did: "did:plc:test",
+      getTokenInfo: async () => ({ aud: "https://pds.example" }),
+      getTokenSet: async () => ({ access_token: "access-token" }),
+      fetchHandler: async () => new Response(null, {
+        status: 200,
+        headers: { "DPoP-Nonce": `nonce-${++nonceIndex}` },
+      }),
+      server: {
+        dpopNonces: { get: async () => undefined, set: async () => {} },
+        dpopKey: {
+          bareJwk: { kty: "EC", crv: "P-256", x: "x", y: "y" },
+          algorithms: ["ES256"],
+          createJwt: async () => `proof-${++proofIndex}`,
+        },
+        serverMetadata: { dpop_signing_alg_values_supported: ["ES256"] },
+      },
+    };
+
+    const input = await createBookmarkMigrationRequestInput(
+      oauthSession as never,
+      { limit: 12, cursor: "retry-cursor", future: true }
+    );
+
+    expect(input.limit).toBe(12);
+    expect(input.cursor).toBe("retry-cursor");
+    expect(input.future).toBe(true);
+    expect(input.upstreamDpopProof.split(",")).toHaveLength(90);
+    expect(nonceIndex).toBe(90);
+  });
+});
 
 describe("createUpstreamDpopProof", () => {
   test("refreshes nonce before minting when none is supplied", async () => {
