@@ -1,0 +1,25 @@
+{
+  "lexicon": 1,
+  "id": "link.latr.authFull",
+  "defs": {
+    "main": {
+      "type": "permission-set",
+      "title": "Manage L@tr Reading State",
+      "detail": "Create, update, and delete L@tr metadata attached to your bookmarks, including unread and archived state.",
+      "permissions": [
+        {
+          "type": "permission",
+          "resource": "repo",
+          "action": [
+            "create",
+            "update",
+            "delete"
+          ],
+          "collection": [
+            "link.latr.bookmarks.metadata"
+          ]
+        }
+      ]
+    }
+  }
+}

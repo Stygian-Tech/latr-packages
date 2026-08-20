@@ -11,13 +11,36 @@ export const COLLECTION_BOOKMARK_METADATA = "link.latr.bookmarks.metadata" as co
 export const LEGACY_COLLECTION_SAVED_EXTERNAL = "com.latr.saved.external" as const;
 export const LEGACY_COLLECTION_SAVED_ITEM = "com.latr.saved.item" as const;
 
-export const LATR_REPO_OAUTH_SCOPES = [
+/** Canonical L@tr permission set for bookmark metadata and reading state. */
+export const LATR_AUTH_FULL_PERMISSION_SET = "link.latr.authFull" as const;
+
+/** Cross-namespace bookmark writes cannot be bundled by the L@tr permission set. */
+export const LATR_BOOKMARK_REPO_OAUTH_SCOPES = [
   `repo:${COLLECTION_BOOKMARK}?action=create&action=update&action=delete`,
-  `repo:${COLLECTION_BOOKMARK_METADATA}?action=create&action=update&action=delete`,
+] as const;
+
+/** Human-readable L@tr-owned reading-state permissions. */
+export const LATR_READING_STATE_OAUTH_SCOPE =
+  `include:${LATR_AUTH_FULL_PERMISSION_SET}` as const;
+
+/** Delete-only grants retained until legacy bookmark migration is retired. */
+export const LATR_MIGRATION_CLEANUP_REPO_OAUTH_SCOPES = [
   `repo:${COLLECTION_SAVED_EXTERNAL}?action=delete`,
   `repo:${COLLECTION_SAVED_ITEM}?action=delete`,
   `repo:${LEGACY_COLLECTION_SAVED_EXTERNAL}?action=delete`,
   `repo:${LEGACY_COLLECTION_SAVED_ITEM}?action=delete`,
+] as const;
+
+/**
+ * Complete L@tr repository access requested by first-party clients.
+ *
+ * Keep cross-namespace bookmarks and transitional cleanup explicit. Only
+ * L@tr-owned bookmark metadata is covered by `link.latr.authFull`.
+ */
+export const LATR_REPO_OAUTH_SCOPES = [
+  ...LATR_BOOKMARK_REPO_OAUTH_SCOPES,
+  LATR_READING_STATE_OAUTH_SCOPE,
+  ...LATR_MIGRATION_CLEANUP_REPO_OAUTH_SCOPES,
 ] as const;
 
 export function isLatrExternalWrapperCollection(collection: string): boolean {
