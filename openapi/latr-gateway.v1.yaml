@@ -9,6 +9,36 @@ paths:
       responses:
         "200":
           description: OK
+  /xrpc/link.latr.bookmarks.listBookmarks:
+    get:
+      summary: List bookmark views with an optional exact tag filter
+      security:
+        - oauthDpop: []
+        - developerKey: []
+  /xrpc/link.latr.bookmarks.listTags:
+    get:
+      summary: Count tags in one bookmark page
+      security:
+        - oauthDpop: []
+        - developerKey: []
+  /xrpc/link.latr.bookmarks.setTags:
+    post:
+      summary: Replace all tags on one bookmark
+      security:
+        - oauthDpop: []
+        - developerKey: []
+  /xrpc/link.latr.bookmarks.renameTag:
+    post:
+      summary: Rename a tag in one bounded bookmark page
+      security:
+        - oauthDpop: []
+        - developerKey: []
+  /xrpc/link.latr.bookmarks.deleteTag:
+    post:
+      summary: Delete a tag from one bounded bookmark page
+      security:
+        - oauthDpop: []
+        - developerKey: []
   /v1/latr/saves:
     get:
       summary: List saved items

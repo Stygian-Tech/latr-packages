@@ -26,6 +26,9 @@ export function bookmarkUpstreamProofPlanForGatewayRequest(
   if (method === "GET" && path === latrXrpcPath(LATR_XRPC.listBookmarks)) {
     return { transport: "header", specs: [{ xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 9 }] };
   }
+  if (method === "GET" && path === latrXrpcPath(LATR_XRPC.listTags)) {
+    return { transport: "header", specs: [{ xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 1 }] };
+  }
   if (method === "GET" && path === latrXrpcPath(LATR_XRPC.getBookmark)) {
     return {
       transport: "header",
@@ -41,6 +44,27 @@ export function bookmarkUpstreamProofPlanForGatewayRequest(
       specs: [
         { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 8 },
         { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 2 },
+        { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
+      ],
+    };
+  }
+  if (method === "POST" && path === latrXrpcPath(LATR_XRPC.setBookmarkTags)) {
+    return {
+      transport: "header",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 2 },
+        { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
+      ],
+    };
+  }
+  if (
+    method === "POST" &&
+    (path === latrXrpcPath(LATR_XRPC.renameBookmarkTag) || path === latrXrpcPath(LATR_XRPC.deleteBookmarkTag))
+  ) {
+    return {
+      transport: "header",
+      specs: [
+        { xrpcMethod: "com.atproto.repo.listRecords", httpMethod: "GET", count: 1 },
         { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
       ],
     };

@@ -104,7 +104,14 @@ describe("XRPC method contracts", () => {
     return ["query", "procedure"].includes(json.defs?.main?.type ?? "");
   });
 
-  it("publishes all 24 methods", () => expect(methodFiles).toHaveLength(24));
+  it("publishes all 28 methods", () => expect(methodFiles).toHaveLength(28));
+
+  it("keeps generated client descriptors in parity with published methods", async () => {
+    const { LATR_XRPC } = await import("../../gateway-client/src/xrpc");
+    const published = methodFiles.map((file) => file.split("/").pop()?.replace(/\.json$/, "")).sort();
+    const described = Object.values(LATR_XRPC).map((method) => method.nsid).sort();
+    expect(described).toEqual(published);
+  });
 
   for (const file of methodFiles) {
     it(`${file.split("/").pop()} declares transport and stable errors`, () => {
@@ -120,4 +127,42 @@ describe("XRPC method contracts", () => {
       expect(json.defs.main.errors?.map((error) => error.name)).toContain("UpstreamFailure");
     });
   }
+});
+
+describe("bookmark tag XRPC contracts", () => {
+  function main(id: string) {
+    return (JSON.parse(readFileSync(join(ROOT, `${id}.json`), "utf8")) as {
+      defs: { main: Record<string, unknown> };
+    }).defs.main;
+  }
+
+  it("publishes exact query and procedure kinds", () => {
+    expect(main("link.latr.bookmarks.listBookmarks").type).toBe("query");
+    expect(main("link.latr.bookmarks.listTags").type).toBe("query");
+    expect(main("link.latr.bookmarks.setTags").type).toBe("procedure");
+    expect(main("link.latr.bookmarks.renameTag").type).toBe("procedure");
+    expect(main("link.latr.bookmarks.deleteTag").type).toBe("procedure");
+  });
+
+  it("preserves bounded tag limits in every public input", () => {
+    const listTags = main("link.latr.bookmarks.listTags") as {
+      parameters: { properties: { limit: { maximum: number } } };
+    };
+    const renameTag = main("link.latr.bookmarks.renameTag") as {
+      input: { schema: { properties: { limit: { maximum: number } } } };
+    };
+    const deleteTag = main("link.latr.bookmarks.deleteTag") as {
+      input: { schema: { properties: { limit: { maximum: number } } } };
+    };
+    const setTags = main("link.latr.bookmarks.setTags") as {
+      input: { schema: { required: string[]; properties: { tags: { maxLength: number; items: { maxLength: number; maxGraphemes: number } } } } };
+    };
+
+    expect(listTags.parameters.properties.limit.maximum).toBe(100);
+    expect(renameTag.input.schema.properties.limit.maximum).toBe(25);
+    expect(deleteTag.input.schema.properties.limit.maximum).toBe(25);
+    expect(setTags.input.schema.required).toEqual(["bookmarkUri", "tags"]);
+    expect(setTags.input.schema.properties.tags.maxLength).toBe(100);
+    expect(setTags.input.schema.properties.tags.items).toMatchObject({ maxLength: 640, maxGraphemes: 64 });
+  });
 });
