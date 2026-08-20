@@ -8,7 +8,7 @@ Public npm/Bun packages for L@tr.link: lexicons, deterministic record keys, gate
 |---------|-------------|
 | `@stygian/latr-record-keys` | SHA-256 base32 rkeys and fingerprints (golden-vector tested) |
 | `@stygian/latr-gateway-client` | Gateway auth headers, route→XRPC mapping, upstream DPoP proof helpers |
-| `@stygian/latr-lexicons` | `link.latr.saved.*` JSON schemas |
+| `@stygian/latr-lexicons` | `link.latr.bookmarks.*` schemas and historical `link.latr.saved.*` contracts |
 
 ## Development
 

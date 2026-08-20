@@ -43,8 +43,90 @@ const simpleOK = ref("link.latr.saved.defs#simpleOk");
 const saveOutput = ref("link.latr.saved.defs#saveResult");
 const emptyParams = params([], {});
 const emptyInput = object([], {});
+const bookmarkErrors = [
+  "InvalidRequest", "InvalidUrl", "AuthRequired", "InvalidToken", "InvalidDpop",
+  "ClientAuthRequired", "BookmarkNotFound", "Conflict", "RateLimitExceeded", "UpstreamFailure",
+].map((name) => ({ name }));
+const bookmarkSimpleOK = ref("link.latr.bookmarks.defs#simpleOk");
+const bookmarkView = ref("link.latr.bookmarks.defs#bookmarkView");
 
 const schemas: Record<string, unknown> = {
+  "link.latr.bookmarks.defs": defsSchema("link.latr.bookmarks.defs", {
+    communityBookmarkRecord: object(["subject", "createdAt"], {
+      subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
+      createdAt: string({ format: "datetime" }),
+      tags: array(string({ maxLength: 640, maxGraphemes: 64 }), { maxLength: 100 }),
+    }),
+    bookmarkRecord: object(["uri", "cid", "value"], {
+      uri: string({ format: "at-uri" }),
+      cid: string({ format: "cid" }),
+      value: ref("community.lexicon.bookmarks.bookmark"),
+    }),
+    metadataRecord: object(["uri", "cid", "value"], {
+      uri: string({ format: "at-uri" }),
+      cid: string({ format: "cid" }),
+      value: ref("link.latr.bookmarks.metadata"),
+    }),
+    preview: object([], {
+      title: string({ maxLength: 2048, maxGraphemes: 512 }),
+      description: string({ maxLength: 8192, maxGraphemes: 2048 }),
+      image: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
+      siteName: string({ maxLength: 512, maxGraphemes: 128 }),
+      author: string({ maxLength: 512, maxGraphemes: 128 }),
+    }),
+    bookmarkView: object(["uri", "cid", "value"], {
+      uri: string({ format: "at-uri" }),
+      cid: string({ format: "cid" }),
+      value: ref("community.lexicon.bookmarks.bookmark"),
+      metadataRecord: ref("#metadataRecord"),
+      preview: ref("#preview"),
+    }),
+    simpleOk: object(["ok"], { ok: boolean }),
+    migrationResult: object(["ok", "scanned", "created", "reused", "duplicates", "skippedConflict", "cached", "retired"], {
+      ok: boolean,
+      scanned: integer({ minimum: 0 }), created: integer({ minimum: 0 }), reused: integer({ minimum: 0 }),
+      duplicates: integer({ minimum: 0 }), skippedConflict: integer({ minimum: 0 }), cached: integer({ minimum: 0 }),
+      retired: integer({ minimum: 0 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }),
+    metadataSyncResult: object(["ok", "scanned", "created", "reused", "skippedConflict"], {
+      ok: boolean,
+      scanned: integer({ minimum: 0 }), created: integer({ minimum: 0 }), reused: integer({ minimum: 0 }),
+      skippedConflict: integer({ minimum: 0 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }),
+  }),
+  "link.latr.bookmarks.listBookmarks": schema("link.latr.bookmarks.listBookmarks", query(
+    params([], { limit: integer({ minimum: 1, maximum: 100, default: 50 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    object(["bookmarks"], { bookmarks: array(bookmarkView, { maxLength: 100 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    bookmarkErrors
+  )),
+  "link.latr.bookmarks.getBookmark": schema("link.latr.bookmarks.getBookmark", query(
+    params(["subject"], { subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }) }),
+    object([], { bookmark: bookmarkView }), bookmarkErrors
+  )),
+  "link.latr.bookmarks.saveBookmark": schema("link.latr.bookmarks.saveBookmark", procedure(
+    object(["subject"], {
+      subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
+      tags: array(string({ maxLength: 640, maxGraphemes: 64 }), { maxLength: 100 }),
+    }), bookmarkView, bookmarkErrors
+  )),
+  "link.latr.bookmarks.syncMetadata": schema("link.latr.bookmarks.syncMetadata", procedure(
+    object([], { limit: integer({ minimum: 1, maximum: 100, default: 50 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    ref("link.latr.bookmarks.defs#metadataSyncResult"), bookmarkErrors
+  )),
+  "link.latr.bookmarks.setState": schema("link.latr.bookmarks.setState", procedure(
+    object(["bookmarkUri", "state"], {
+      bookmarkUri: string({ format: "at-uri", maxLength: 8192, maxGraphemes: 2048 }),
+      state: string({ enum: ["unread", "archived"], maxLength: 16, maxGraphemes: 16 }),
+    }), bookmarkSimpleOK, bookmarkErrors
+  )),
+  "link.latr.bookmarks.deleteBookmark": schema("link.latr.bookmarks.deleteBookmark", procedure(
+    object(["bookmarkUri"], { bookmarkUri: string({ format: "at-uri", maxLength: 8192, maxGraphemes: 2048 }) }),
+    bookmarkSimpleOK, bookmarkErrors
+  )),
+  "link.latr.bookmarks.migrateLegacy": schema("link.latr.bookmarks.migrateLegacy", procedure(
+    object([], { limit: integer({ minimum: 1, maximum: 100, default: 25 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    ref("link.latr.bookmarks.defs#migrationResult"), bookmarkErrors
+  )),
   "link.latr.saved.defs": defsSchema("link.latr.saved.defs", {
     record: object(["uri", "cid", "value"], {
       uri: string({ format: "at-uri" }), cid: string({ format: "cid" }), value: ref("link.latr.saved.item"),

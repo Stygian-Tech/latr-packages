@@ -4,10 +4,13 @@ Schemas for read-later data stored on the user’s PDS.
 
 | Lexicon | Role |
 |---------|------|
-| `link.latr.saved.external` | Wrapper for an external URL (deterministic rkey per normalized URL) |
-| `link.latr.saved.item` | Saved edge: points at an AT URI (wrapper or native record); optional `linkedWebUrl` + `preview*` cache OG metadata for native subjects |
+| `community.lexicon.bookmarks.bookmark` | Authoritative community-owned bookmark schema (referenced, not republished here) |
+| `link.latr.bookmarks.metadata` | User-owned L@tr state sidecar keyed by the bookmark TID |
+| `link.latr.bookmarks.*` | XRPC bookmark save/list/get/metadata-sync/state/delete/migration methods |
+| `link.latr.saved.external` | **Deprecated history only:** legacy external URL wrapper |
+| `link.latr.saved.item` | **Deprecated history only:** legacy saved edge |
 
-Legacy `com.latr.saved.*` collections were registered before `latr.link` DNS was authoritative; clients migrate existing repo records to `link.latr.*`.
+Legacy `com.latr.saved.*` and `link.latr.saved.*` records migrate to the community bookmark plus L@tr metadata sidecar. The old schemas remain published for history and one-release delete adapters; new code must not write them.
 
 Record keys are **application-chosen** (deterministic hashes), so lexicons declare `"key": "any"`.
 

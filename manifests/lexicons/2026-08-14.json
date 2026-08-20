@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "publishedAt": "2026-08-14T03:54:43Z",
+  "authority": "did:plc:qy5pluw2bsuq2x6albsgkvx3",
+  "pds": "https://oyster.us-east.host.bsky.network",
+  "collection": "com.atproto.lexicon.schema",
+  "records": {
+    "link.latr.bookmarks.defs": "bafyreifqp5q37cw4jpu4lox5zs6se2nup3zr3z4e3ntamwgi5oy5jovz6e",
+    "link.latr.bookmarks.deleteBookmark": "bafyreiaqkyfqhnyhhp66vcejotxqlb55rn76hrswi42e4rxbtsenm6aeba",
+    "link.latr.bookmarks.getBookmark": "bafyreicevag7ewykkdvt46pniaj6g7etxnjqzza2xens7bt5h4zf7pqore",
+    "link.latr.bookmarks.listBookmarks": "bafyreibobfuja2whqynqvlezb7qvellv7n3dia65fvvpias4lkw46hfapm",
+    "link.latr.bookmarks.metadata": "bafyreievxgwclw753dcrgcw6kigexxcghmhrd33xeyazmdqkgf3bzezujq",
+    "link.latr.bookmarks.migrateLegacy": "bafyreiaryzavd4fr6hi2tqvotpec3jfjy5zysvswea6anjvtmbn56rdc6u",
+    "link.latr.bookmarks.saveBookmark": "bafyreiak7eos2fhw67zq7mawdis7bt4z4ywag2sjtlqki7b7pkxneogmny",
+    "link.latr.bookmarks.setState": "bafyreiexcs5acnlvg3laen5nz65b2jqcn4q2vzaoryi5tqh4zvftd7ibbq",
+    "link.latr.bookmarks.syncMetadata": "bafyreiacfmw3vt4g2aaqkkqz7mell6tl5wnlwjqrvabqgz4vtszx2qj6ii"
+  }
+}

@@ -27,6 +27,7 @@ describe("lexicon JSON schemas", () => {
     const names = files.map((f) => f.split("/").pop());
     expect(names).toContain("link.latr.saved.external.json");
     expect(names).toContain("link.latr.saved.item.json");
+    expect(names).toContain("link.latr.bookmarks.metadata.json");
   });
 
   for (const file of files) {
@@ -63,7 +64,7 @@ describe("XRPC method contracts", () => {
     return ["query", "procedure"].includes(json.defs?.main?.type ?? "");
   });
 
-  it("publishes all 17 methods", () => expect(methodFiles).toHaveLength(17));
+  it("publishes all 24 methods", () => expect(methodFiles).toHaveLength(24));
 
   for (const file of methodFiles) {
     it(`${file.split("/").pop()} declares transport and stable errors`, () => {
