@@ -52,7 +52,7 @@ export function bookmarkUpstreamProofPlanForGatewayRequest(
     return {
       transport: "header",
       specs: [
-        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 2 },
+        { xrpcMethod: "com.atproto.repo.getRecord", httpMethod: "GET", count: 3 },
         { xrpcMethod: "com.atproto.repo.applyWrites", httpMethod: "POST", count: 1 },
       ],
     };
