@@ -28,6 +28,7 @@ describe("lexicon JSON schemas", () => {
     expect(names).toContain("link.latr.saved.external.json");
     expect(names).toContain("link.latr.saved.item.json");
     expect(names).toContain("link.latr.bookmarks.metadata.json");
+    expect(names).toContain("link.latr.authFull.json");
   });
 
   for (const file of files) {
@@ -43,6 +44,45 @@ describe("lexicon JSON schemas", () => {
       expect(json.defs).toBeTruthy();
     });
   }
+});
+
+describe("L@tr permission set", () => {
+  it("grants only L@tr-owned bookmark metadata mutations", () => {
+    const schema = JSON.parse(
+      readFileSync(join(ROOT, "link.latr.authFull.json"), "utf8")
+    ) as {
+      id: string;
+      defs: {
+        main: {
+          type: string;
+          title: string;
+          detail: string;
+          permissions: unknown[];
+        };
+      };
+    };
+
+    expect(schema).toEqual({
+      lexicon: 1,
+      id: "link.latr.authFull",
+      defs: {
+        main: {
+          type: "permission-set",
+          title: "Manage L@tr Reading State",
+          detail:
+            "Create, update, and delete L@tr metadata attached to your bookmarks, including unread and archived state.",
+          permissions: [
+            {
+              type: "permission",
+              resource: "repo",
+              action: ["create", "update", "delete"],
+              collection: ["link.latr.bookmarks.metadata"],
+            },
+          ],
+        },
+      },
+    });
+  });
 });
 
 describe("saved item schema", () => {

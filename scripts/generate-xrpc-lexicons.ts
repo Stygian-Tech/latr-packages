@@ -51,6 +51,17 @@ const bookmarkSimpleOK = ref("link.latr.bookmarks.defs#simpleOk");
 const bookmarkView = ref("link.latr.bookmarks.defs#bookmarkView");
 
 const schemas: Record<string, unknown> = {
+  "link.latr.authFull": schema("link.latr.authFull", {
+    type: "permission-set",
+    title: "Manage L@tr Reading State",
+    detail: "Create, update, and delete L@tr metadata attached to your bookmarks, including unread and archived state.",
+    permissions: [{
+      type: "permission",
+      resource: "repo",
+      action: ["create", "update", "delete"],
+      collection: ["link.latr.bookmarks.metadata"],
+    }],
+  }),
   "link.latr.bookmarks.defs": defsSchema("link.latr.bookmarks.defs", {
     communityBookmarkRecord: object(["subject", "createdAt"], {
       subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
