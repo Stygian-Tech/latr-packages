@@ -147,6 +147,55 @@
         }
       }
     },
+    "tagCount": {
+      "type": "object",
+      "required": [
+        "tag",
+        "count"
+      ],
+      "properties": {
+        "tag": {
+          "type": "string",
+          "maxLength": 640,
+          "maxGraphemes": 64
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "tagMutationResult": {
+      "type": "object",
+      "required": [
+        "ok",
+        "scanned",
+        "matched",
+        "updated"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "scanned": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "matched": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "updated": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cursor": {
+          "type": "string",
+          "maxLength": 2048,
+          "maxGraphemes": 512
+        }
+      }
+    },
     "migrationResult": {
       "type": "object",
       "required": [

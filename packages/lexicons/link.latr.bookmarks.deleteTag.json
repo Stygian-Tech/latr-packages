@@ -1,47 +1,28 @@
 {
   "lexicon": 1,
-  "id": "link.latr.bookmarks.listBookmarks",
+  "id": "link.latr.bookmarks.deleteTag",
   "defs": {
     "main": {
-      "description": "L@tr XRPC method link.latr.bookmarks.listBookmarks.",
-      "type": "query",
-      "parameters": {
-        "type": "params",
-        "required": [],
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100,
-            "default": 50
-          },
-          "cursor": {
-            "type": "string",
-            "maxLength": 2048,
-            "maxGraphemes": 512
-          },
-          "tag": {
-            "type": "string",
-            "maxLength": 640,
-            "maxGraphemes": 64
-          }
-        }
-      },
-      "output": {
+      "description": "L@tr XRPC method link.latr.bookmarks.deleteTag.",
+      "type": "procedure",
+      "input": {
         "encoding": "application/json",
         "schema": {
           "type": "object",
           "required": [
-            "bookmarks"
+            "tag"
           ],
           "properties": {
-            "bookmarks": {
-              "type": "array",
-              "items": {
-                "type": "ref",
-                "ref": "link.latr.bookmarks.defs#bookmarkView"
-              },
-              "maxLength": 100
+            "tag": {
+              "type": "string",
+              "maxLength": 640,
+              "maxGraphemes": 64
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 25,
+              "default": 25
             },
             "cursor": {
               "type": "string",
@@ -49,6 +30,13 @@
               "maxGraphemes": 512
             }
           }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "ref",
+          "ref": "link.latr.bookmarks.defs#tagMutationResult"
         }
       },
       "errors": [

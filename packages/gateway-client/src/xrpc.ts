@@ -5,8 +5,12 @@ function descriptor(nsid: string, kind: LatrXrpcKind, requiresApplicationCredent
 }
 export const LATR_XRPC = Object.freeze({
   listBookmarks: descriptor("link.latr.bookmarks.listBookmarks", "query"),
+  listTags: descriptor("link.latr.bookmarks.listTags", "query"),
   getBookmark: descriptor("link.latr.bookmarks.getBookmark", "query"),
   saveBookmark: descriptor("link.latr.bookmarks.saveBookmark", "procedure"),
+  setBookmarkTags: descriptor("link.latr.bookmarks.setTags", "procedure"),
+  renameBookmarkTag: descriptor("link.latr.bookmarks.renameTag", "procedure"),
+  deleteBookmarkTag: descriptor("link.latr.bookmarks.deleteTag", "procedure"),
   syncBookmarkMetadata: descriptor("link.latr.bookmarks.syncMetadata", "procedure"),
   setBookmarkState: descriptor("link.latr.bookmarks.setState", "procedure"),
   deleteBookmark: descriptor("link.latr.bookmarks.deleteBookmark", "procedure"),
@@ -55,9 +59,16 @@ export type LatrBookmarkView = LatrRepoRecord<CommunityBookmarkRecord> & {
   metadataRecord?: LatrRepoRecord<LatrBookmarkMetadataRecord>;
   preview?: LatrBookmarkPreview;
 };
-export type LatrListBookmarksParams = { limit?: number; cursor?: string };
+export type LatrListBookmarksParams = { limit?: number; cursor?: string; tag?: string };
 export type LatrListBookmarksOutput = { bookmarks: LatrBookmarkView[]; cursor?: string };
+export type LatrTagCount = { tag: string; count: number };
+export type LatrListTagsParams = { limit?: number; cursor?: string };
+export type LatrListTagsOutput = { tagCounts: LatrTagCount[]; scanned: number; cursor?: string };
 export type LatrSaveBookmarkInput = { subject: string; tags?: string[] };
+export type LatrSetBookmarkTagsInput = { bookmarkUri: string; tags: string[] };
+export type LatrRenameBookmarkTagInput = { tag: string; replacement: string; limit?: number; cursor?: string };
+export type LatrDeleteBookmarkTagInput = { tag: string; limit?: number; cursor?: string };
+export type LatrTagMutationResult = { ok: boolean; scanned: number; matched: number; updated: number; cursor?: string };
 export type LatrSyncBookmarkMetadataInput = { limit?: number; cursor?: string };
 export type LatrBookmarkMetadataSyncResult = {
   ok: boolean;
@@ -93,8 +104,12 @@ export interface LatrXrpcTransport { request<TOutput>(method: LatrXrpcMethod, op
 export class LatrXrpcClient {
   constructor(private readonly transport: LatrXrpcTransport) {}
   listBookmarks(parameters: LatrListBookmarksParams = {}) { return this.transport.request<LatrListBookmarksOutput>(LATR_XRPC.listBookmarks, { params: parameters }); }
+  listTags(parameters: LatrListTagsParams = {}) { return this.transport.request<LatrListTagsOutput>(LATR_XRPC.listTags, { params: parameters }); }
   getBookmark(subject: string) { return this.transport.request<{ bookmark?: LatrBookmarkView }>(LATR_XRPC.getBookmark, { params: { subject } }); }
   saveBookmark(input: LatrSaveBookmarkInput) { return this.transport.request<LatrBookmarkView>(LATR_XRPC.saveBookmark, { input }); }
+  setBookmarkTags(input: LatrSetBookmarkTagsInput) { return this.transport.request<LatrBookmarkView>(LATR_XRPC.setBookmarkTags, { input }); }
+  renameBookmarkTag(input: LatrRenameBookmarkTagInput) { return this.transport.request<LatrTagMutationResult>(LATR_XRPC.renameBookmarkTag, { input }); }
+  deleteBookmarkTag(input: LatrDeleteBookmarkTagInput) { return this.transport.request<LatrTagMutationResult>(LATR_XRPC.deleteBookmarkTag, { input }); }
   syncBookmarkMetadata(input: LatrSyncBookmarkMetadataInput = {}) { return this.transport.request<LatrBookmarkMetadataSyncResult>(LATR_XRPC.syncBookmarkMetadata, { input }); }
   setBookmarkState(input: LatrSetBookmarkStateInput) { return this.transport.request<LatrSimpleOk>(LATR_XRPC.setBookmarkState, { input }); }
   deleteBookmark(input: LatrDeleteBookmarkInput) { return this.transport.request<LatrSimpleOk>(LATR_XRPC.deleteBookmark, { input }); }

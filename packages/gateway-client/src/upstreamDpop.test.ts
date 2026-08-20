@@ -13,8 +13,12 @@ describe("bookmarkUpstreamProofPlanForGatewayRequest", () => {
   test("publishes the ordered proof contracts for every bookmark XRPC route", () => {
     const cases = [
       ["GET", "/xrpc/link.latr.bookmarks.listBookmarks?limit=50", "header", 9],
+      ["GET", "/xrpc/link.latr.bookmarks.listTags?limit=100", "header", 1],
       ["GET", "/xrpc/link.latr.bookmarks.getBookmark#subject", "header", 9],
       ["POST", "/xrpc/link.latr.bookmarks.saveBookmark", "header", 11],
+      ["POST", "/xrpc/link.latr.bookmarks.setTags", "header", 3],
+      ["POST", "/xrpc/link.latr.bookmarks.renameTag", "header", 2],
+      ["POST", "/xrpc/link.latr.bookmarks.deleteTag", "header", 2],
       ["POST", "/xrpc/link.latr.bookmarks.syncMetadata", "header", 10],
       ["PATCH", "/xrpc/link.latr.bookmarks.setState", "header", 3],
       ["POST", "/xrpc/link.latr.bookmarks.deleteBookmark", "header", 3],

@@ -49,6 +49,8 @@ const bookmarkErrors = [
 ].map((name) => ({ name }));
 const bookmarkSimpleOK = ref("link.latr.bookmarks.defs#simpleOk");
 const bookmarkView = ref("link.latr.bookmarks.defs#bookmarkView");
+const tagValue = string({ maxLength: 640, maxGraphemes: 64 });
+const tagValues = (extra: Record<string, unknown> = {}) => array(tagValue, { maxLength: 100, ...extra });
 
 const schemas: Record<string, unknown> = {
   "link.latr.authFull": schema("link.latr.authFull", {
@@ -66,7 +68,7 @@ const schemas: Record<string, unknown> = {
     communityBookmarkRecord: object(["subject", "createdAt"], {
       subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
       createdAt: string({ format: "datetime" }),
-      tags: array(string({ maxLength: 640, maxGraphemes: 64 }), { maxLength: 100 }),
+      tags: tagValues(),
     }),
     bookmarkRecord: object(["uri", "cid", "value"], {
       uri: string({ format: "at-uri" }),
@@ -93,6 +95,17 @@ const schemas: Record<string, unknown> = {
       preview: ref("#preview"),
     }),
     simpleOk: object(["ok"], { ok: boolean }),
+    tagCount: object(["tag", "count"], {
+      tag: tagValue,
+      count: integer({ minimum: 1 }),
+    }),
+    tagMutationResult: object(["ok", "scanned", "matched", "updated"], {
+      ok: boolean,
+      scanned: integer({ minimum: 0 }),
+      matched: integer({ minimum: 0 }),
+      updated: integer({ minimum: 0 }),
+      cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }),
     migrationResult: object(["ok", "scanned", "created", "reused", "duplicates", "skippedConflict", "cached", "retired"], {
       ok: boolean,
       scanned: integer({ minimum: 0 }), created: integer({ minimum: 0 }), reused: integer({ minimum: 0 }),
@@ -106,8 +119,24 @@ const schemas: Record<string, unknown> = {
     }),
   }),
   "link.latr.bookmarks.listBookmarks": schema("link.latr.bookmarks.listBookmarks", query(
-    params([], { limit: integer({ minimum: 1, maximum: 100, default: 50 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    params([], {
+      limit: integer({ minimum: 1, maximum: 100, default: 50 }),
+      cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+      tag: tagValue,
+    }),
     object(["bookmarks"], { bookmarks: array(bookmarkView, { maxLength: 100 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),
+    bookmarkErrors
+  )),
+  "link.latr.bookmarks.listTags": schema("link.latr.bookmarks.listTags", query(
+    params([], {
+      limit: integer({ minimum: 1, maximum: 100, default: 100 }),
+      cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }),
+    object(["tagCounts", "scanned"], {
+      tagCounts: array(ref("link.latr.bookmarks.defs#tagCount"), { maxLength: 10000 }),
+      scanned: integer({ minimum: 0 }),
+      cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }),
     bookmarkErrors
   )),
   "link.latr.bookmarks.getBookmark": schema("link.latr.bookmarks.getBookmark", query(
@@ -117,8 +146,29 @@ const schemas: Record<string, unknown> = {
   "link.latr.bookmarks.saveBookmark": schema("link.latr.bookmarks.saveBookmark", procedure(
     object(["subject"], {
       subject: string({ format: "uri", maxLength: 8192, maxGraphemes: 2048 }),
-      tags: array(string({ maxLength: 640, maxGraphemes: 64 }), { maxLength: 100 }),
+      tags: tagValues(),
     }), bookmarkView, bookmarkErrors
+  )),
+  "link.latr.bookmarks.setTags": schema("link.latr.bookmarks.setTags", procedure(
+    object(["bookmarkUri", "tags"], {
+      bookmarkUri: string({ format: "at-uri", maxLength: 8192, maxGraphemes: 2048 }),
+      tags: tagValues(),
+    }), bookmarkView, bookmarkErrors
+  )),
+  "link.latr.bookmarks.renameTag": schema("link.latr.bookmarks.renameTag", procedure(
+    object(["tag", "replacement"], {
+      tag: tagValue,
+      replacement: tagValue,
+      limit: integer({ minimum: 1, maximum: 25, default: 25 }),
+      cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }), ref("link.latr.bookmarks.defs#tagMutationResult"), bookmarkErrors
+  )),
+  "link.latr.bookmarks.deleteTag": schema("link.latr.bookmarks.deleteTag", procedure(
+    object(["tag"], {
+      tag: tagValue,
+      limit: integer({ minimum: 1, maximum: 25, default: 25 }),
+      cursor: string({ maxLength: 2048, maxGraphemes: 512 }),
+    }), ref("link.latr.bookmarks.defs#tagMutationResult"), bookmarkErrors
   )),
   "link.latr.bookmarks.syncMetadata": schema("link.latr.bookmarks.syncMetadata", procedure(
     object([], { limit: integer({ minimum: 1, maximum: 100, default: 50 }), cursor: string({ maxLength: 2048, maxGraphemes: 512 }) }),

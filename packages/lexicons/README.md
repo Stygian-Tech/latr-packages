@@ -7,7 +7,7 @@ Schemas for read-later data stored on the user’s PDS.
 | `link.latr.authFull` | Human-readable OAuth permission set for L@tr-owned bookmark metadata and reading state |
 | `community.lexicon.bookmarks.bookmark` | Authoritative community-owned bookmark schema (referenced, not republished here) |
 | `link.latr.bookmarks.metadata` | User-owned L@tr state sidecar keyed by the bookmark TID |
-| `link.latr.bookmarks.*` | XRPC bookmark save/list/get/metadata-sync/state/delete/migration methods |
+| `link.latr.bookmarks.*` | Published XRPC bookmark save/list/tag-management/metadata-sync/state/delete/migration methods |
 | `link.latr.saved.external` | **Deprecated history only:** legacy external URL wrapper |
 | `link.latr.saved.item` | **Deprecated history only:** legacy saved edge |
 

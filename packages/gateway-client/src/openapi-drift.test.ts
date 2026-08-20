@@ -10,5 +10,10 @@ describe("latr gateway OpenAPI contract", () => {
     );
     expect(spec).toContain("/v1/latr/saves");
     expect(spec).toContain("/health");
+    expect(spec).toContain("/xrpc/link.latr.bookmarks.listBookmarks");
+    expect(spec).toContain("/xrpc/link.latr.bookmarks.listTags");
+    expect(spec).toContain("/xrpc/link.latr.bookmarks.setTags");
+    expect(spec).toContain("/xrpc/link.latr.bookmarks.renameTag");
+    expect(spec).toContain("/xrpc/link.latr.bookmarks.deleteTag");
   });
 });
