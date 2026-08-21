@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "publishedAt": "2026-08-21T00:41:19Z",
+  "authority": "did:plc:qy5pluw2bsuq2x6albsgkvx3",
+  "pds": "https://oyster.us-east.host.bsky.network",
+  "collection": "com.atproto.lexicon.schema",
+  "records": {
+    "link.latr.authFull": "bafyreicmjy7hv7ew6sadwxurgbb2gbpixjmlelvmru3gozdiavsrifvvwq",
+    "link.latr.bookmarks.defs": "bafyreieup6bwpagwbq7zanpwjohwvcuogmthzflfqjgxh5ycorwfuu3gky",
+    "link.latr.bookmarks.deleteTag": "bafyreihoefzedenmjtxvjmn6hewp56gh6njrjxf24lvq3k632igqx4q5re",
+    "link.latr.bookmarks.listBookmarks": "bafyreifi4dvgieiiq6pdfzv6wwqr5xslez4jiid7yjd3aizr5w4dvce4lq",
+    "link.latr.bookmarks.listTags": "bafyreidpxvse72zji7fg6msknzzdtpqy2juzvny5rprsxcwgy7pdl7gd5q",
+    "link.latr.bookmarks.renameTag": "bafyreihgdsnsrxmh2jh3toj5vnlj5n66uo46ikdrz5e3zi37tdrcc2naky",
+    "link.latr.bookmarks.setTags": "bafyreidjmw23frktjbtnxtuvf3hat6ztka47wjuhyfrowwe3f7i77whrd4"
+  }
+}
